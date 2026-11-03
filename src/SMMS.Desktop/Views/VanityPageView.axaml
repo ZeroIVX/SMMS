@@ -1,0 +1,373 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMMS.Desktop.ViewModels"
+             x:Class="SMMS.Desktop.Views.VanityPageView">
+
+    <UserControl.Styles>
+        <!-- 「应用」用的浅紫底紫字按钮（设计稿里比 primary 轻一档）。 -->
+        <Style Selector="Button.soft">
+            <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="Button.soft:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}" />
+        </Style>
+
+        <Style Selector="TextBlock.cpname">
+            <Setter Property="FontSize" Value="13.5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+        <Style Selector="TextBlock.cpname.off">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            <Setter Property="FontWeight" Value="Normal" />
+        </Style>
+
+        <!-- 替换包是单选（同时只生效一套），不用开关：生效项整行浅紫底高亮。 -->
+        <Style Selector="Border.packrow">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Border.packrow.active">
+            <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="26,20,26,20" RowDefinitions="Auto,Auto,Auto">
+
+            <!-- 导入 / 应用的结果反馈（有才出现，平时不占位） -->
+            <StackPanel Grid.Row="0">
+                <Border IsVisible="{Binding HasError}"
+                        Background="{DynamicResource Brush.DangerSoft}"
+                        BorderBrush="{DynamicResource Brush.DangerBorder}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="12,8"
+                        Margin="0,0,0,12">
+                    <TextBlock Text="{Binding ErrorText}"
+                               FontSize="12"
+                               Foreground="{DynamicResource Brush.Danger}"
+                               TextWrapping="Wrap" />
+                </Border>
+                <Border IsVisible="{Binding HasNotice}"
+                        Background="{DynamicResource Brush.SuccessSoft}"
+                        BorderBrush="{DynamicResource Brush.Mint}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="12,8"
+                        Margin="0,0,0,12">
+                    <TextBlock Text="{Binding NoticeText}"
+                               FontSize="12"
+                               Foreground="{DynamicResource Brush.Success}"
+                               TextWrapping="Wrap" />
+                </Border>
+            </StackPanel>
+
+            <Grid Grid.Row="1" ColumnDefinitions="*,20,*">
+
+                <!-- ============ 左栏：资源替换（XNB 覆盖，同时只生效一套） ============ -->
+                <StackPanel Grid.Column="0" x:Name="LeftColumn">
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                            <TextBlock Classes="h2" Text="{DynamicResource vanity.replaceTitle}" />
+                            <TextBlock Classes="muted"
+                                       FontSize="11"
+                                       Text="{DynamicResource vanity.replaceTag}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Classes="primary"
+                                Height="34"
+                                Content="{DynamicResource vanity.importXnb}"
+                                Command="{Binding ImportPackageCommand}"
+                                IsEnabled="{Binding !IsBusy}" />
+                    </Grid>
+
+                    <TextBlock Classes="muted"
+                               Text="{DynamicResource vanity.replaceDesc}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,12" />
+
+                    <!-- 生效状态条：有包生效时绿色，否则中性 -->
+                    <Border IsVisible="{Binding IsActiveState}"
+                            Background="{DynamicResource Brush.SuccessSoft}"
+                            BorderBrush="{DynamicResource Brush.Mint}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="14,10"
+                            Margin="0,0,0,12">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <Ellipse Width="7"
+                                     Height="7"
+                                     Fill="{DynamicResource Brush.Success}"
+                                     VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1"
+                                       Margin="9,0,12,0"
+                                       Text="{Binding ActiveBannerText}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource Brush.Success}"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center" />
+                            <Button Grid.Column="2"
+                                    Classes="secondary"
+                                    Height="30"
+                                    Padding="12,0"
+                                    FontSize="11.5"
+                                    Content="{DynamicResource vanity.revert}"
+                                    Command="{Binding RevertCommand}"
+                                    IsVisible="{Binding HasPackages}" />
+                        </Grid>
+                    </Border>
+                    <Border IsVisible="{Binding !IsActiveState}"
+                            Background="{DynamicResource Brush.CardSubtle}"
+                            BorderBrush="{DynamicResource Brush.Border}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="14,10"
+                            Margin="0,0,0,12">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Ellipse Width="7"
+                                     Height="7"
+                                     Fill="{DynamicResource Brush.TextFaint}"
+                                     VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1"
+                                       Margin="9,0,0,0"
+                                       Text="{Binding ActiveBannerText}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource Brush.TextSecondary}"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- 单选提示：让「点第二个、第一个自动退回」变成预期行为而不是 bug。 -->
+                    <TextBlock Classes="faint"
+                               Text="{DynamicResource vanity.singleActiveHint}"
+                               TextWrapping="Wrap"
+                               Margin="2,0,0,8"
+                               IsVisible="{Binding HasPackages}" />
+
+                    <!-- 替换包列表 -->
+                    <Border Classes="card"
+                            Padding="0"
+                            ClipToBounds="True"
+                            Margin="0,0,0,12"
+                            IsVisible="{Binding HasPackages}">
+                        <ItemsControl ItemsSource="{Binding Packages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:VanityItemViewModel">
+                                    <!-- 单选模型：只有生效项高亮，切换只能通过「应用」按钮，不给开关。 -->
+                                    <Border Classes="packrow"
+                                            Classes.active="{Binding IsActive}"
+                                            BorderThickness="0,0,0,1"
+                                            BorderBrush="{DynamicResource Brush.Divider}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="18,12">
+
+                                            <Border Width="64"
+                                                    Height="64"
+                                                    CornerRadius="12"
+                                                    Background="{Binding ThumbBrush}">
+                                                <TextBlock Text="{Binding ThumbGlyph}"
+                                                           FontSize="22"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="White"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1"
+                                                        Margin="14,0,12,0"
+                                                        VerticalAlignment="Center"
+                                                        Spacing="3">
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontSize="14"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource Brush.Text}"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding MetaText}"
+                                                           FontSize="11"
+                                                           Foreground="{DynamicResource Brush.TextMuted}"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding NoteText}"
+                                                           IsVisible="{Binding HasNote}"
+                                                           FontSize="11"
+                                                           Foreground="{DynamicResource Brush.TextFaint}"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+
+                                            <ToggleButton Grid.Column="2"
+                                                          Classes="switch"
+                                                          IsChecked="{Binding IsActive, Mode=OneWay}"
+                                                          Command="{Binding $parent[UserControl].DataContext.TogglePackageCommand}"
+                                                          CommandParameter="{Binding}"
+                                                          VerticalAlignment="Center"
+                                                          Margin="0,0,10,0"
+                                                          ToolTip.Tip="{DynamicResource vanity.switchTip}" />
+
+                                            <StackPanel Grid.Column="3"
+                                                        Orientation="Horizontal"
+                                                        Spacing="6"
+                                                        VerticalAlignment="Center">
+                                                <Button Classes="icon"
+                                                        Width="30"
+                                                        Height="30"
+                                                        IsVisible="{Binding IsInactive}"
+                                                        ToolTip.Tip="{DynamicResource vanity.delete}"
+                                                        Command="{Binding $parent[UserControl].DataContext.DeleteCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <PathIcon Data="M9 3h6l1 2h4v2H4V5h4l1-2zM5 8h14v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8z"
+                                                              Width="14"
+                                                              Height="14" />
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+
+                    <Border Classes="card tight"
+                            Margin="0,0,0,12"
+                            IsVisible="{Binding !HasPackages}">
+                        <StackPanel Spacing="4">
+                            <TextBlock Classes="h3" Text="{DynamicResource vanity.emptyPackages}" />
+                            <TextBlock Classes="muted"
+                                       Text="{DynamicResource vanity.emptyPackagesHint}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 替换规则 -->
+                    <Border Classes="card tight" Margin="0,0,0,10">
+                        <StackPanel Spacing="7">
+                            <TextBlock Classes="h3" Text="{DynamicResource vanity.rulesTitle}" />
+                            <TextBlock Classes="small"
+                                       Foreground="{DynamicResource Brush.TextMuted}"
+                                       TextWrapping="Wrap"
+                                       Text="{DynamicResource vanity.rules1}" />
+                            <TextBlock Classes="small"
+                                       Foreground="{DynamicResource Brush.TextMuted}"
+                                       TextWrapping="Wrap"
+                                       Text="{DynamicResource vanity.rules2}" />
+                            <TextBlock Classes="small"
+                                       Foreground="{DynamicResource Brush.TextMuted}"
+                                       TextWrapping="Wrap"
+                                       Text="{DynamicResource vanity.rules3}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- ============ 右栏：额外资源包（Content Patcher，可多个共存） ============ -->
+                <!-- 拖入提示统一挪到页面最底部（一行横跨全宽），这里不再重复。 -->
+                <!-- MinHeight 绑左栏实际高度：ScrollViewer 下星号行不会自动撑高，靠它让空态卡与左栏底部对齐。 -->
+                <Grid Grid.Column="2"
+                      MinHeight="{Binding #LeftColumn.Bounds.Height, FallbackValue=280}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal" Spacing="9" VerticalAlignment="Center">
+                            <TextBlock Classes="h2" Text="{DynamicResource vanity.extraTitle}" />
+                            <TextBlock Classes="muted"
+                                       FontSize="11"
+                                       Text="{DynamicResource vanity.extraTag}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Classes="secondary"
+                                Height="34"
+                                Content="{DynamicResource vanity.importContentPack}"
+                                Command="{Binding ImportContentPackCommand}"
+                                IsEnabled="{Binding !IsBusy}" />
+                    </Grid>
+
+                    <TextBlock Grid.Row="1"
+                               Classes="muted"
+                               Text="{DynamicResource vanity.extraDesc}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,12" />
+
+                    <Grid Grid.Row="2">
+                        <Border Classes="card"
+                                Padding="0"
+                                ClipToBounds="True"
+                                VerticalAlignment="Stretch"
+                                IsVisible="{Binding HasContentPacks}">
+                            <ItemsControl ItemsSource="{Binding ContentPacks}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:ContentPackItemViewModel">
+                                        <Border BorderThickness="0,0,0,1"
+                                                BorderBrush="{DynamicResource Brush.Divider}">
+                                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                                  Margin="18,11"
+                                                  Opacity="{Binding RowOpacity}">
+                                                <Grid Width="8" VerticalAlignment="Center">
+                                                    <Ellipse Width="7"
+                                                             Height="7"
+                                                             Fill="{DynamicResource Brush.Success}"
+                                                             IsVisible="{Binding IsEnabled}" />
+                                                    <Ellipse Width="7"
+                                                             Height="7"
+                                                             Fill="{DynamicResource Brush.TextFaint}"
+                                                             IsVisible="{Binding IsDisabled}" />
+                                                </Grid>
+                                                <StackPanel Grid.Column="1"
+                                                            Margin="10,0,12,0"
+                                                            Spacing="2">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               Classes="cpname"
+                                                               Classes.off="{Binding IsDisabled}" />
+                                                    <TextBlock Text="{Binding MetaText}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource Brush.TextMuted}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding DescriptionText}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource Brush.TextFaint}"
+                                                               IsVisible="{Binding HasDescription}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                                <ToggleButton Grid.Column="2"
+                                                              Classes="switch"
+                                                              IsChecked="{Binding IsEnabled, Mode=OneWay}"
+                                                              Command="{Binding $parent[UserControl].DataContext.ToggleContentPackCommand}"
+                                                              CommandParameter="{Binding}"
+                                                              VerticalAlignment="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Border>
+
+                        <Border Classes="card tight"
+                                VerticalAlignment="Stretch"
+                                IsVisible="{Binding !HasContentPacks}">
+                            <StackPanel Spacing="4" VerticalAlignment="Top">
+                                <TextBlock Classes="h3" Text="{DynamicResource vanity.emptyContentPacks}" />
+                                <TextBlock Classes="muted"
+                                           Text="{DynamicResource vanity.emptyContentPacksHint}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <!-- 拖入提示：整页只保留这一处，横跨全宽放在最底部。 -->
+            <TextBlock Grid.Row="2"
+                       Classes="faint"
+                       Margin="0,12,0,0"
+                       Text="{DynamicResource vanity.dropHint}"
+                       TextWrapping="Wrap" />
+        </Grid>
+    </ScrollViewer>
+</UserControl>

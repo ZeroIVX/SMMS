@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMMS.Desktop.ViewModels"
+        x:Class="SMMS.Desktop.Views.PreflightDialog"
+        x:DataType="vm:PreflightDialogViewModel"
+        Title="{Binding Title}"
+        Width="560" Height="430"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#F7F7F4">
+
+    <Window.Styles>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#D5D5CE" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="#33332E" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.secondary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#F1F1EB" />
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <StackPanel Grid.Row="0" Margin="24,20,24,14" Spacing="6">
+            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" Foreground="#1F2A24" />
+            <TextBlock Text="{Binding Subtitle}" FontSize="12" Foreground="#8A8A82" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Margin="24,0" Background="#FFFFFF" BorderBrush="#E8E8E2"
+                BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding Issues}" Margin="0,4">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="vm:PreflightIssueViewModel">
+                            <Grid ColumnDefinitions="Auto,*" Margin="14,9">
+                                <Border Width="3" CornerRadius="2" Background="{Binding Accent}"
+                                        Margin="0,2,11,2" />
+                                <TextBlock Grid.Column="1" Text="{Binding Text}" FontSize="12"
+                                           TextWrapping="Wrap" Foreground="#33332E" LineHeight="19" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right"
+                    Margin="24,16,24,20" Spacing="10">
+            <Button Content="{Binding CancelText}" Click="OnCancelClick" Classes="secondary"
+                    Height="34" Padding="18,0" CornerRadius="7" FontSize="12.5" />
+            <Button Content="{Binding ContinueText}" Click="OnContinueClick"
+                    Height="34" Padding="18,0" CornerRadius="7" FontSize="12.5"
+                    Background="#2F7D4F" Foreground="#FFFFFF" FontWeight="SemiBold"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+        </StackPanel>
+    </Grid>
+</Window>

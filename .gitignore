@@ -1,0 +1,36 @@
+# 构建产物
+bin/
+obj/
+publish/
+publish-*/
+_artifacts/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# 测试与覆盖率
+TestResults/
+coverage/
+*.coverage
+*.trx
+
+# 本地运行产物
+*.log
+logs/
+settings.json
+*.local.json
+
+# 系统文件
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# 临时文件
+*.tmp
+*.bak
+~$*

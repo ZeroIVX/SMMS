@@ -1,0 +1,319 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMMS.Desktop.ViewModels"
+             x:CompileBindings="False"
+             x:Class="SMMS.Desktop.Views.ProfilePageView">
+
+    <UserControl.Styles>
+        <!-- 当前环境卡：紫蓝描边（设计稿 #4A57D5） -->
+        <Style Selector="Border.card.current">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Primary}" />
+        </Style>
+
+        <!-- 刚复制出来的卡：浅紫底提示一次性高亮 -->
+        <Style Selector="Border.card.highlight">
+            <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Primary}" />
+        </Style>
+
+        <Style Selector="TextBlock.warn">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Warning}" />
+        </Style>
+
+        <Style Selector="TextBlock.body.current">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+        </Style>
+
+        <Style Selector="Button.actionCard">
+            <Setter Property="Height" Value="72" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="14" />
+        </Style>
+        <Style Selector="Button.actionCard:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Brush.CardSubtle}" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="26,22,26,26" Spacing="14">
+
+            <!-- 操作结果提示 -->
+            <Border IsVisible="{Binding HasError}"
+                    Background="{DynamicResource Brush.DangerSoft}"
+                    BorderBrush="{DynamicResource Brush.DangerBorder}" BorderThickness="1"
+                    CornerRadius="10" Padding="14,9">
+                <TextBlock Text="{Binding ErrorText}" FontSize="11.5"
+                           Foreground="{DynamicResource Brush.Danger}" TextWrapping="Wrap" />
+            </Border>
+
+            <Border IsVisible="{Binding HasStatus}"
+                    Background="{DynamicResource Brush.SuccessSoft}"
+                    BorderThickness="0" CornerRadius="10" Padding="14,9">
+                <TextBlock Text="{Binding StatusText}" FontSize="11.5"
+                           Foreground="{DynamicResource Brush.Success}" TextWrapping="Wrap" />
+            </Border>
+
+            <!-- 环境大卡 -->
+            <ItemsControl ItemsSource="{Binding Items}" IsVisible="{Binding HasProfiles}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="{Binding CardColumns}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:ProfileCardViewModel">
+                        <Border Classes="card" Classes.current="{Binding IsActive}"
+                                Classes.highlight="{Binding IsHighlighted}"
+                                Margin="0,0,12,12" Padding="20,18">
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                             Fill="{DynamicResource Brush.Success}"
+                                             IsVisible="{Binding !HasIssues}" />
+                                    <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                             Fill="{DynamicResource Brush.Warning}"
+                                             IsVisible="{Binding HasIssues}" />
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                                                Margin="9,0,8,0" VerticalAlignment="Center">
+                                        <TextBlock Classes="h2" Text="{Binding DisplayName}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <Border Classes="pill neutral" IsVisible="{Binding IsFullInstance}">
+                                            <TextBlock Text="{DynamicResource profiles.isolation.fullBadge}" />
+                                        </Border>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6"
+                                                VerticalAlignment="Center">
+                                        <Border Classes="pill primary" IsVisible="{Binding IsActive}">
+                                            <TextBlock Text="{DynamicResource profiles.current}" />
+                                        </Border>
+                                        <Button Classes="link"
+                                                Content="{DynamicResource profiles.setCurrent}"
+                                                IsVisible="{Binding !IsActive}"
+                                                Command="{Binding Activate}" CommandParameter="{Binding}"
+                                                VerticalAlignment="Center" />
+
+                                        <!-- 手动排序：内置档不显示（位次由语义决定） -->
+                                        <StackPanel Orientation="Horizontal" Spacing="2"
+                                                    IsVisible="{Binding !IsBuiltIn}">
+                                            <Button Classes="icon" Width="24" Height="24" Padding="0"
+                                                    IsEnabled="{Binding CanMoveUp}"
+                                                    ToolTip.Tip="{DynamicResource profiles.moveUp}"
+                                                    Command="{Binding $parent[UserControl].DataContext.MoveProfileUpCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="↑" FontSize="12" HorizontalAlignment="Center" />
+                                            </Button>
+                                            <Button Classes="icon" Width="24" Height="24" Padding="0"
+                                                    IsEnabled="{Binding CanMoveDown}"
+                                                    ToolTip.Tip="{DynamicResource profiles.moveDown}"
+                                                    Command="{Binding $parent[UserControl].DataContext.MoveProfileDownCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <TextBlock Text="↓" FontSize="12" HorizontalAlignment="Center" />
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Grid.Row="1" Classes="muted" Margin="0,9,0,0"
+                                           Text="{Binding MetaText}" TextTrimming="CharacterEllipsis" />
+
+                                <TextBlock Grid.Row="2" Classes="faint" Margin="0,16,0,0"
+                                           Text="{Binding PathText}"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Top"
+                                           ToolTip.Tip="{Binding PathText}" />
+
+                                <!-- 快捷入口：先切到该环境，再跳到对应页面 -->
+                                <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="4"
+                                            Margin="0,10,0,0">
+                                    <Button Classes="link" FontSize="11" Padding="0" MinHeight="0"
+                                            Content="{Binding ModsLinkText}"
+                                            Command="{Binding OpenMods}" CommandParameter="{Binding}"
+                                            ToolTip.Tip="{Binding SwitchTip}" />
+                                    <TextBlock Classes="faint" Text="·" VerticalAlignment="Center" />
+                                    <Button Classes="link" FontSize="11" Padding="0" MinHeight="0"
+                                            Content="{Binding VanityLinkText}"
+                                            Command="{Binding OpenVanity}" CommandParameter="{Binding}"
+                                            ToolTip.Tip="{Binding SwitchTip}" />
+                                </StackPanel>
+
+                                <Grid Grid.Row="4" ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+                                    <TextBlock Classes="small" Classes.warn="{Binding HasIssues}"
+                                               Text="{Binding StatusText}" VerticalAlignment="Center" />
+                                    <Button Grid.Column="1" Classes="primary" Height="32" Padding="18,0"
+                                            Content="{DynamicResource profiles.launch}"
+                                            Command="{Binding Launch}" CommandParameter="{Binding}" />
+                                </Grid>
+
+                                <StackPanel Grid.Row="5" Orientation="Horizontal" Spacing="2"
+                                            HorizontalAlignment="Right" Margin="0,8,0,0">
+                                    <Button Classes="ghost" Height="26" Padding="8,0" FontSize="11"
+                                            Content="{DynamicResource profiles.copy}"
+                                            Command="{Binding Copy}" CommandParameter="{Binding}" />
+                                    <Button Classes="ghost" Height="26" Padding="8,0" FontSize="11"
+                                            Content="{DynamicResource profiles.rename}"
+                                            IsEnabled="{Binding CanModify}"
+                                            Command="{Binding Rename}" CommandParameter="{Binding}" />
+                                    <Button Classes="ghost" Height="26" Padding="8,0" FontSize="11"
+                                            Content="{DynamicResource profiles.export}">
+                                        <Button.Flyout>
+                                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                                <MenuItem Header="{DynamicResource profiles.exportConfigOnly}"
+                                                          Command="{Binding Export}"
+                                                          CommandParameter="{Binding}" />
+                                                <MenuItem Header="{DynamicResource profiles.exportWithMods}"
+                                                          Command="{Binding ExportWithMods}"
+                                                          CommandParameter="{Binding}" />
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                    <Button Classes="ghost" Height="26" Padding="8,0" FontSize="11"
+                                            Foreground="{DynamicResource Brush.Danger}"
+                                            IsEnabled="{Binding CanModify}"
+                                            Content="{DynamicResource profiles.delete}"
+                                            Command="{Binding Delete}" CommandParameter="{Binding}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- 没有可用环境时的空态 -->
+            <Border Classes="card" IsVisible="{Binding !HasProfiles}" Padding="20,16">
+                <TextBlock Classes="muted" Text="{DynamicResource profiles.emptyNoGame}"
+                           TextWrapping="Wrap" />
+            </Border>
+
+            <!-- 两个动作大卡 -->
+            <Grid ColumnDefinitions="*,*">
+                <Border Classes="card" Padding="0" Margin="0,0,6,0">
+                    <Button Classes="actionCard" Command="{Binding ToggleCreatePanelCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="9" HorizontalAlignment="Center">
+                            <PathIcon Width="16" Height="16"
+                                      Foreground="{DynamicResource Brush.Primary}"
+                                      Data="M11,5 H13 V11 H19 V13 H13 V19 H11 V13 H5 V11 H11 Z" />
+                            <TextBlock Classes="h3" Text="{DynamicResource profiles.createCardTitle}" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+
+                <Border Grid.Column="1" Classes="card" Padding="0" Margin="6,0,0,0">
+                    <Button Classes="actionCard" Command="{Binding ImportCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="9" HorizontalAlignment="Center">
+                            <PathIcon Width="16" Height="16"
+                                      Foreground="{DynamicResource Brush.TextSecondary}"
+                                      Data="M11,4 H13 V12 H17 L12,17 L7,12 H11 Z M5,19 H19 V21 H5 Z" />
+                            <TextBlock Classes="h3" Text="{DynamicResource profiles.importCardTitle}" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+            </Grid>
+
+            <!-- 新建配置档表单 -->
+            <Border Classes="card" Padding="20,18" IsVisible="{Binding IsCreatePanelOpen}">
+                <StackPanel Spacing="14">
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Classes="h3" Text="{DynamicResource profiles.createCardTitle}" />
+                        <Button Grid.Column="1" Classes="link"
+                                Content="{DynamicResource common.close}"
+                                Command="{Binding ToggleCreatePanelCommand}" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox Text="{Binding NewProfileName}"
+                                 PlaceholderText="{DynamicResource profiles.namePlaceholder}"
+                                 IsEnabled="{Binding !IsBusy}" />
+                        <Button Grid.Column="1" Classes="primary" Margin="12,0,0,0" MinWidth="96"
+                                Content="{Binding CreateButtonText}"
+                                Command="{Binding CreateCommand}" />
+                    </Grid>
+
+                    <CheckBox IsChecked="{Binding CopyFromActive}" IsEnabled="{Binding !IsBusy}"
+                              VerticalAlignment="Center">
+                        <TextBlock Classes="small" Text="{DynamicResource profiles.copyCurrent}" />
+                    </CheckBox>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Classes="muted" Text="{DynamicResource profiles.isolation}"
+                                   VerticalAlignment="Center" />
+                        <ComboBox Width="220" ItemsSource="{Binding IsolationOptions}"
+                                  SelectedItem="{Binding SelectedIsolation}"
+                                  IsEnabled="{Binding !IsBusy}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="vm:IsolationOption">
+                                    <TextBlock Text="{Binding DisplayName}" FontSize="12.5" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Classes="link" Content="{DynamicResource profiles.adopt}"
+                                Command="{Binding AdoptCommand}" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <TextBlock Classes="faint" IsVisible="{Binding IsFullInstanceSelected}"
+                               Text="{DynamicResource profiles.isolation.fullHint}"
+                               TextWrapping="Wrap" />
+
+                    <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+                </StackPanel>
+            </Border>
+
+            <!-- 一行说明 -->
+            <TextBlock Classes="muted" Text="{DynamicResource profiles.explainer}"
+                       TextWrapping="Wrap" Margin="2,2,2,0" />
+
+            <!-- 环境对比 -->
+            <Border Classes="card" Padding="20,18" Margin="0,2,0,0">
+                <StackPanel>
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                        <TextBlock Classes="h3" Text="{DynamicResource profiles.compareTitle}" />
+                        <TextBlock Grid.Column="1" Classes="muted"
+                                   Text="{DynamicResource profiles.compareHint}" />
+                    </Grid>
+
+                    <Border Height="1" Background="{DynamicResource Brush.Divider}" />
+
+                    <Grid ColumnDefinitions="*,110,110,110,120" Margin="0,10,0,4">
+                        <TextBlock Classes="faint" Text="{DynamicResource profiles.colEnv}" />
+                        <TextBlock Grid.Column="1" Classes="faint" HorizontalAlignment="Right"
+                                   Text="{DynamicResource profiles.colMods}" />
+                        <TextBlock Grid.Column="2" Classes="faint" HorizontalAlignment="Right"
+                                   Text="{DynamicResource profiles.colPending}" />
+                        <TextBlock Grid.Column="3" Classes="faint" HorizontalAlignment="Right"
+                                   Text="{DynamicResource profiles.colSize}" />
+                        <TextBlock Grid.Column="4" Classes="faint" HorizontalAlignment="Right"
+                                   Text="{DynamicResource profiles.colLastLaunch}" />
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding Items}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:ProfileCardViewModel">
+                                <Grid ColumnDefinitions="*,110,110,110,120" Height="42">
+                                    <TextBlock Classes="body" Classes.current="{Binding IsActive}"
+                                               Text="{Binding DisplayName}"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" Classes="small" HorizontalAlignment="Right"
+                                               Text="{Binding ModCount}" />
+                                    <TextBlock Grid.Column="2" Classes="small" HorizontalAlignment="Right"
+                                               Classes.warn="{Binding HasIssues}"
+                                               Text="{Binding PendingText}" />
+                                    <TextBlock Grid.Column="3" Classes="small" HorizontalAlignment="Right"
+                                               Text="{Binding SizeText}" />
+                                    <TextBlock Grid.Column="4" Classes="small" HorizontalAlignment="Right"
+                                               Text="{Binding LastLaunchText}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

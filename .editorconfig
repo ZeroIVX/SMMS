@@ -1,0 +1,36 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{json,yml,yaml,axaml,xml,csproj,props,targets}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_prefer_braces = true:suggestion
+dotnet_naming_rule.interfaces_start_with_i.severity = warning
+dotnet_naming_rule.interfaces_start_with_i.symbols = interfaces
+dotnet_naming_rule.interfaces_start_with_i.style = i_prefixed
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_style.i_prefixed.required_prefix = I
+dotnet_naming_style.i_prefixed.capitalization = pascal_case
+dotnet_diagnostic.CA1062.severity = none
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA1848.severity = none
+dotnet_diagnostic.CA1873.severity = none
+
+[tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none

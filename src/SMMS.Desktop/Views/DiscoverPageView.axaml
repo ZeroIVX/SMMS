@@ -1,0 +1,282 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMMS.Desktop.ViewModels"
+             x:Class="SMMS.Desktop.Views.DiscoverPageView">
+
+    <UserControl.Styles>
+        <!-- 左侧分类/排序列表：全局样式把 ListBoxItem 的选中底色清成了透明，这里补回来。 -->
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="MinHeight" Value="32" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Brush.CardSubtle}" />
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}" />
+        </Style>
+
+        <Style Selector="TextBlock.navlabel">
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+        <Style Selector="TextBlock.navlabel.selected">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="TextBlock.navcount">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextFaint}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="8,0,0,0" />
+        </Style>
+        <Style Selector="TextBlock.navcount.selected">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}" />
+        </Style>
+
+        <!-- 「安装 / 已安装」的浅紫底紫字按钮，设计稿里是比 primary 更轻的一档。 -->
+        <Style Selector="Button.soft">
+            <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="Button.soft:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid Margin="26,20,26,20" RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- 顶部大搜索框：关键词 / N 网尾号 / 模组页链接都往这里粘。 -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,12,Auto" Margin="0,0,0,8">
+            <TextBox Classes="search"
+                     Height="46"
+                     FontSize="13"
+                     Padding="20,0"
+                     Text="{Binding SearchInput, Mode=TwoWay}"
+                     PlaceholderText="{DynamicResource discover.placeholder}" />
+            <Button Grid.Column="2"
+                    Classes="primary"
+                    Width="96"
+                    Height="46"
+                    CornerRadius="12"
+                    FontSize="13.5"
+                    Content="{DynamicResource discover.searchAction}"
+                    Command="{Binding RunSearchCommand}"
+                    HotKey="Enter" />
+        </Grid>
+
+        <!-- 引导说明：这里的列表只负责「找到」，安装走手动拖入，不给假按钮。 -->
+        <TextBlock Grid.Row="1"
+                   Classes="faint"
+                   Text="{DynamicResource discover.installGuide}"
+                   TextWrapping="Wrap"
+                   Margin="2,0,0,14" />
+
+        <!-- 错误条 -->
+        <Border Grid.Row="2"
+                IsVisible="{Binding HasError}"
+                Background="{DynamicResource Brush.DangerSoft}"
+                BorderBrush="{DynamicResource Brush.DangerBorder}"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="12,8"
+                Margin="0,0,0,12">
+            <TextBlock Text="{Binding ErrorText}"
+                       FontSize="12"
+                       Foreground="{DynamicResource Brush.Danger}"
+                       TextWrapping="Wrap" />
+        </Border>
+
+        <Grid Grid.Row="3" ColumnDefinitions="240,16,*">
+
+            <!-- 左栏：分类 + 排序 -->
+            <StackPanel Grid.Column="0">
+                <TextBlock Classes="faint"
+                           Text="{DynamicResource discover.categories}"
+                           FontWeight="SemiBold"
+                           Margin="12,0,0,6" />
+                <ListBox ItemsSource="{Binding Categories}"
+                         SelectedItem="{Binding SelectedCategory}"
+                         Margin="0,0,0,18">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="vm:NexusCategoryOption">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Classes="navlabel"
+                                           Classes.selected="{Binding $parent[ListBoxItem].IsSelected}"
+                                           Text="{Binding DisplayName}" />
+                                <TextBlock Grid.Column="1"
+                                           Classes="navcount"
+                                           Classes.selected="{Binding $parent[ListBoxItem].IsSelected}"
+                                           IsVisible="{Binding ShowCount}"
+                                           Text="{Binding CountText}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <TextBlock Classes="faint"
+                           Text="{DynamicResource discover.sort}"
+                           FontWeight="SemiBold"
+                           Margin="12,0,0,6" />
+                <ListBox ItemsSource="{Binding SortOptions}"
+                         SelectedItem="{Binding SelectedSort}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="vm:NexusSortOption">
+                            <TextBlock Classes="navlabel"
+                                       Classes.selected="{Binding $parent[ListBoxItem].IsSelected}"
+                                       Text="{Binding DisplayName}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+
+            <!-- 右栏：结果卡 -->
+            <Border Grid.Column="2"
+                    Classes="card"
+                    Padding="0"
+                    ClipToBounds="True">
+                <Grid RowDefinitions="Auto,*">
+
+                    <Border Grid.Row="0"
+                            BorderThickness="0,0,0,1"
+                            BorderBrush="{DynamicResource Brush.Divider}"
+                            Padding="20,14,20,12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                <TextBlock Classes="h3" Text="{Binding ResultTitle}" />
+                                <ProgressBar IsIndeterminate="True"
+                                             IsVisible="{Binding IsBusy}"
+                                             Width="80"
+                                             VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1"
+                                       Classes="faint"
+                                       Text="{Binding SortCaption}"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:NexusItemViewModel">
+                                        <Border BorderThickness="0,0,0,1"
+                                                BorderBrush="{DynamicResource Brush.Divider}">
+                                            <Grid ColumnDefinitions="Auto,*,Auto" Margin="20,10">
+
+                                                <Border Width="56"
+                                                        Height="56"
+                                                        CornerRadius="12"
+                                                        Background="{Binding ThumbBrush}">
+                                                    <TextBlock Text="{Binding ThumbGlyph}"
+                                                               FontSize="20"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="White"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center" />
+                                                </Border>
+
+                                                <StackPanel Grid.Column="1"
+                                                            Margin="14,0,16,0"
+                                                            VerticalAlignment="Center"
+                                                            Spacing="2">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   FontSize="14"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource Brush.Text}"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding IdText}"
+                                                                   FontSize="11"
+                                                                   Foreground="{DynamicResource Brush.TextFaint}"
+                                                                   VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding MetaText}"
+                                                               FontSize="11.5"
+                                                               Foreground="{DynamicResource Brush.TextMuted}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding DisplaySummary}"
+                                                               FontSize="11.5"
+                                                               Foreground="{DynamicResource Brush.TextSecondary}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2"
+                                                            Orientation="Horizontal"
+                                                            Spacing="8"
+                                                            VerticalAlignment="Center">
+                                                    <!-- 运行环境（SMAPI 等）：只标状态，不给安装按钮。 -->
+                                                    <Border Classes="pill primary"
+                                                            IsVisible="{Binding IsRuntimeEnvironment}"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{DynamicResource discover.runtimeTag}" />
+                                                    </Border>
+                                                    <TextBlock IsVisible="{Binding IsRuntimeEnvironment}"
+                                                               Text="{Binding RuntimeStatusText}"
+                                                               FontSize="11.5"
+                                                               Foreground="{DynamicResource Brush.TextSecondary}"
+                                                               VerticalAlignment="Center" />
+                                                    <Border Classes="pill success"
+                                                            IsVisible="{Binding ShowChinesePill}"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{DynamicResource discover.hasChinese}" />
+                                                    </Border>
+                                                    <Button Classes="secondary"
+                                                            Height="28"
+                                                            Padding="10,0"
+                                                            FontSize="11.5"
+                                                            Content="{DynamicResource discover.translate}"
+                                                            IsVisible="{Binding !IsTranslated}"
+                                                            IsEnabled="{Binding !IsTranslating}"
+                                                            Command="{Binding $parent[UserControl].DataContext.TranslateCommand}"
+                                                            CommandParameter="{Binding}" />
+                                                    <!-- 没有下载 API：只提供跳转链接 + 拖入安装的引导，不做假安装按钮。 -->
+                                                    <Button Classes="link"
+                                                            Height="28"
+                                                            Padding="6,0"
+                                                            FontSize="11.5"
+                                                            Content="{DynamicResource discover.openNexusPage}"
+                                                            Command="{Binding $parent[UserControl].DataContext.OpenUrlCommand}"
+                                                            CommandParameter="{Binding PageUrl}" />
+                                                    <Border Classes="pill neutral"
+                                                            IsVisible="{Binding IsInstalled}"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="{DynamicResource discover.installed}" />
+                                                    </Border>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <StackPanel IsVisible="{Binding IsEmpty}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="10"
+                                    Margin="0,40">
+                            <PathIcon Data="M10 2a8 8 0 1 0 4.9 14.34l4.4 4.4 1.42-1.42-4.4-4.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"
+                                      Width="26"
+                                      Height="26"
+                                      Foreground="{DynamicResource Brush.TextFaint}"
+                                      HorizontalAlignment="Center" />
+                            <TextBlock Classes="muted"
+                                       Text="{DynamicResource discover.empty}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,234 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMMS.Desktop.ViewModels"
+             x:Class="SMMS.Desktop.Views.DiagnosticsPageView"
+             x:DataType="vm:DiagnosticsPageViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Button.link.compact">
+            <Setter Property="FontSize" Value="11.5" />
+        </Style>
+        <Style Selector="Button.recheck">
+            <Setter Property="Padding" Value="0" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="26,22,26,24" Spacing="12">
+
+            <!-- ===== 四个统计卡 ===== -->
+            <Grid ColumnDefinitions="*,12,*,12,*,12,*">
+                <Border Grid.Column="0" Classes="card" Padding="18,15">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="{Binding BlockerCount}" Classes="numeral"
+                                   Foreground="{DynamicResource Brush.Danger}" />
+                        <TextBlock Text="{DynamicResource diagnostics.stat.blocker}" Classes="muted" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Classes="card" Padding="18,15">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="{Binding RiskCount}" Classes="numeral"
+                                   Foreground="{DynamicResource Brush.Warning}" />
+                        <TextBlock Text="{DynamicResource diagnostics.stat.risk}" Classes="muted" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4" Classes="card" Padding="18,15">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="{Binding SuggestionCount}" Classes="numeral" />
+                        <TextBlock Text="{DynamicResource diagnostics.stat.suggestion}" Classes="muted" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="6" Classes="card" Padding="18,15">
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="{Binding PassedCount}" Classes="numeral"
+                                   Foreground="{DynamicResource Brush.Success}" />
+                        <TextBlock Text="{Binding PassedLabelText}" Classes="muted" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ===== 上次检查 / 重新检查 ===== -->
+            <Grid ColumnDefinitions="*,Auto" Margin="2,2,2,0">
+                <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding CheckedAtText}" Classes="muted" />
+                    <TextBlock Text="{DynamicResource diagnostics.checking}" Classes="faint"
+                               IsVisible="{Binding IsBusy}" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="{Binding RecheckText}"
+                        Command="{Binding RecheckCommand}"
+                        Classes="link" IsEnabled="{Binding !IsBusy}" />
+            </Grid>
+
+            <!-- ===== 错误 / 提示条 ===== -->
+            <Border IsVisible="{Binding HasError}"
+                    Background="{DynamicResource Brush.DangerSoft}"
+                    BorderBrush="{DynamicResource Brush.DangerBorder}" BorderThickness="1"
+                    CornerRadius="10" Padding="12,8">
+                <TextBlock Text="{Binding ErrorText}" FontSize="11.5"
+                           Foreground="{DynamicResource Brush.Danger}" TextWrapping="Wrap" />
+            </Border>
+
+            <Border IsVisible="{Binding HasStatus}"
+                    Background="{DynamicResource Brush.PrimarySoft}" BorderThickness="0"
+                    CornerRadius="10" Padding="12,8">
+                <TextBlock Text="{Binding StatusText}" FontSize="11.5"
+                           Foreground="{DynamicResource Brush.Primary}" TextWrapping="Wrap" />
+            </Border>
+
+            <!-- ===== 分组清单 ===== -->
+            <Border Classes="card" Padding="18,16">
+                <StackPanel>
+
+                    <TextBlock Text="{DynamicResource diagnostics.allClear}" Classes="body"
+                               IsVisible="{Binding AllClear}" Margin="0,2,0,0" />
+
+                    <!-- 阻断 -->
+                    <StackPanel IsVisible="{Binding HasBlockers}">
+                        <Grid ColumnDefinitions="3,*" Margin="0,14,0,0">
+                            <Border Width="3" Height="13" CornerRadius="2"
+                                    Background="{DynamicResource Brush.Danger}" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="10,0,0,0">
+                                <TextBlock Text="{DynamicResource diagnostics.group.blocker}"
+                                           FontSize="12.5" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.Danger}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding BlockerCount}" FontSize="12.5" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.Danger}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{DynamicResource diagnostics.group.blockerHint}"
+                                           Classes="muted" Margin="4,0,0,0" />
+                            </StackPanel>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Blockers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:DiagnosticIssueViewModel">
+                                    <StackPanel>
+                                        <Grid ColumnDefinitions="3,*,Auto" Margin="0,12,0,0">
+                                            <Border Width="3" Height="32" CornerRadius="2"
+                                                    Background="{DynamicResource Brush.Danger}"
+                                                    VerticalAlignment="Top" Margin="0,2,0,0" />
+                                            <StackPanel Grid.Column="1" Margin="10,0,16,0" Spacing="3">
+                                                <TextBlock Text="{Binding Title}" FontSize="12.5"
+                                                           Foreground="{DynamicResource Brush.Text}"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Description}" Classes="small"
+                                                           TextWrapping="Wrap"
+                                                           IsVisible="{Binding HasDescription}" />
+                                            </StackPanel>
+                                            <Button Grid.Column="2" Content="{Binding ActionText}"
+                                                    Command="{Binding ActionCommand}" Classes="link"
+                                                    IsVisible="{Binding HasAction}" VerticalAlignment="Center" />
+                                        </Grid>
+                                        <Border Height="1" Background="{DynamicResource Brush.Divider}"
+                                                Margin="13,12,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- 风险 -->
+                    <StackPanel IsVisible="{Binding HasRisks}">
+                        <Grid ColumnDefinitions="3,*" Margin="0,16,0,0">
+                            <Border Width="3" Height="13" CornerRadius="2"
+                                    Background="{DynamicResource Brush.Warning}" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="10,0,0,0">
+                                <TextBlock Text="{DynamicResource diagnostics.group.risk}"
+                                           FontSize="12.5" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.Warning}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding RiskCount}" FontSize="12.5" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.Warning}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{DynamicResource diagnostics.group.riskHint}"
+                                           Classes="muted" Margin="4,0,0,0" />
+                            </StackPanel>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Risks}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:DiagnosticIssueViewModel">
+                                    <StackPanel>
+                                        <Grid ColumnDefinitions="3,*,Auto" Margin="0,12,0,0">
+                                            <Border Width="3" Height="32" CornerRadius="2"
+                                                    Background="{DynamicResource Brush.Warning}"
+                                                    VerticalAlignment="Top" Margin="0,2,0,0" />
+                                            <StackPanel Grid.Column="1" Margin="10,0,16,0" Spacing="3">
+                                                <TextBlock Text="{Binding Title}" FontSize="12.5"
+                                                           Foreground="{DynamicResource Brush.Text}"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Description}" Classes="small"
+                                                           TextWrapping="Wrap"
+                                                           IsVisible="{Binding HasDescription}" />
+                                            </StackPanel>
+                                            <Button Grid.Column="2" Content="{Binding ActionText}"
+                                                    Command="{Binding ActionCommand}" Classes="link"
+                                                    IsVisible="{Binding HasAction}" VerticalAlignment="Center" />
+                                        </Grid>
+                                        <Border Height="1" Background="{DynamicResource Brush.Divider}"
+                                                Margin="13,12,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- 建议 -->
+                    <StackPanel IsVisible="{Binding HasSuggestions}">
+                        <Grid ColumnDefinitions="3,*" Margin="0,16,0,0">
+                            <Border Width="3" Height="13" CornerRadius="2"
+                                    Background="{DynamicResource Brush.TextFaint}" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="10,0,0,0">
+                                <TextBlock Text="{DynamicResource diagnostics.group.suggestion}"
+                                           FontSize="12.5" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.TextSecondary}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding SuggestionCount}" FontSize="12.5" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.TextSecondary}"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="{DynamicResource diagnostics.group.suggestionHint}"
+                                           Classes="muted" Margin="4,0,0,0" />
+                            </StackPanel>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Suggestions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:DiagnosticIssueViewModel">
+                                    <StackPanel>
+                                        <Grid ColumnDefinitions="3,*,Auto" Margin="0,12,0,0">
+                                            <Border Width="3" Height="32" CornerRadius="2"
+                                                    Background="{DynamicResource Brush.TextFaint}"
+                                                    VerticalAlignment="Top" Margin="0,2,0,0" />
+                                            <StackPanel Grid.Column="1" Margin="10,0,16,0" Spacing="3">
+                                                <TextBlock Text="{Binding Title}" FontSize="12.5"
+                                                           Foreground="{DynamicResource Brush.Text}"
+                                                           TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Description}" Classes="small"
+                                                           TextWrapping="Wrap"
+                                                           IsVisible="{Binding HasDescription}" />
+                                            </StackPanel>
+                                            <Button Grid.Column="2" Content="{Binding ActionText}"
+                                                    Command="{Binding ActionCommand}" Classes="link"
+                                                    IsVisible="{Binding HasAction}" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- 底部健康小结 -->
+                    <StackPanel Orientation="Horizontal" Spacing="7" Margin="0,16,0,2">
+                        <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                 Fill="{DynamicResource Brush.Success}" />
+                        <TextBlock Text="{Binding FooterText}" Classes="muted" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

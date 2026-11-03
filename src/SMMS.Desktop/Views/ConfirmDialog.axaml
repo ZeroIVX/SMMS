@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMMS.Desktop.ViewModels"
+        x:Class="SMMS.Desktop.Views.ConfirmDialog"
+        x:DataType="vm:ConfirmDialogViewModel"
+        Title="{Binding Title}"
+        Width="460" Height="230"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#F7F7F4">
+
+    <Window.Styles>
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="#C0392B" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.danger:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#A93226" />
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="24,20,24,18">
+        <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="15" FontWeight="SemiBold"
+                   Foreground="#1F2A24" />
+
+        <TextBlock Grid.Row="1" Text="{Binding Message}" FontSize="12.5" Foreground="#5F5F58"
+                   TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,12,0,0" LineHeight="20" />
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="{Binding CancelText}" Classes="secondary" Click="OnCancelClick"
+                    IsVisible="{Binding ShowCancel}"
+                    Height="34" Padding="18,0" CornerRadius="7" FontSize="12.5" />
+            <Button Content="{Binding ConfirmText}" Classes="danger" Click="OnConfirmClick"
+                    Height="34" Padding="18,0" CornerRadius="7" FontSize="12.5" />
+        </StackPanel>
+    </Grid>
+</Window>

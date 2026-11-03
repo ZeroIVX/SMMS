@@ -1,0 +1,6 @@
+{
+  "languages": [
+    { "locale": "zh-Hans", "displayName": "简体中文" },
+    { "locale": "en", "displayName": "English" }
+  ]
+}

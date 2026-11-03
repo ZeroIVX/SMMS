@@ -1,0 +1,437 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================
+         全局控件样式：与 Styles/Tokens.axaml 的令牌配合使用。
+         页面只写结构，不写颜色，统一走这些 class。
+         ============================================================-->
+
+    <Style Selector="Window">
+        <Setter Property="Background" Value="{DynamicResource Brush.Page}" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontFamily" Value="Inter, Microsoft YaHei UI, Segoe UI" />
+    </Style>
+
+    <!-- ····· 文字 ·····-->
+
+    <Style Selector="TextBlock.h1">
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.h2">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.h3">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.small">
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.muted">
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.faint">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextFaint}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.numeral">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="TextBlock.link">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- ····· 卡片 ·····-->
+
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+
+    <Style Selector="Border.card.tight">
+        <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <Style Selector="Border.card.flat">
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="Border.hero">
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="26,22" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0%,100%" EndPoint="100%,0%">
+                    <GradientStop Color="#16332B" Offset="0" />
+                    <GradientStop Color="#121B25" Offset="0.55" />
+                    <GradientStop Color="#121B25" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ····· 胶囊标签 ·····-->
+
+    <Style Selector="Border.pill">
+        <Setter Property="CornerRadius" Value="999" />
+        <Setter Property="Padding" Value="9,3" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.pill TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Border.pill.success">
+        <Setter Property="Background" Value="{DynamicResource Brush.SuccessSoft}" />
+    </Style>
+    <Style Selector="Border.pill.success TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Success}" />
+    </Style>
+
+    <Style Selector="Border.pill.warning">
+        <Setter Property="Background" Value="{DynamicResource Brush.WarningSoft}" />
+    </Style>
+    <Style Selector="Border.pill.warning TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Warning}" />
+    </Style>
+
+    <Style Selector="Border.pill.danger">
+        <Setter Property="Background" Value="{DynamicResource Brush.DangerSoft}" />
+    </Style>
+    <Style Selector="Border.pill.danger TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Danger}" />
+    </Style>
+
+    <Style Selector="Border.pill.primary">
+        <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}" />
+    </Style>
+    <Style Selector="Border.pill.primary TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}" />
+    </Style>
+
+    <Style Selector="Border.pill.neutral">
+        <Setter Property="Background" Value="#F1F3F5" />
+    </Style>
+    <Style Selector="Border.pill.neutral TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}" />
+    </Style>
+
+    <!-- ····· 按钮 ·····-->
+
+    <Style Selector="Button">
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{DynamicResource Brush.Primary}" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.PrimaryHover}" />
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.PrimaryPressed}" />
+    </Style>
+    <Style Selector="Button.primary:disabled /template/ ContentPresenter">
+        <Setter Property="Background" Value="#B9BEEF" />
+        <Setter Property="TextElement.Foreground" Value="#FFFFFF" />
+    </Style>
+
+    <Style Selector="Button.secondary">
+        <Setter Property="Background" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.BorderStrong}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+        <Setter Property="FontWeight" Value="Normal" />
+    </Style>
+    <Style Selector="Button.secondary:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#F6F7F9" />
+    </Style>
+    <Style Selector="Button.secondary:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="#EFF1F4" />
+    </Style>
+
+    <Style Selector="Button.ghost">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
+        <Setter Property="Padding" Value="10,0" />
+    </Style>
+    <Style Selector="Button.ghost:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#F1F3F5" />
+    </Style>
+
+    <Style Selector="Button.link">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Height" Value="NaN" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.link:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.PrimaryHover}" />
+    </Style>
+
+    <Style Selector="Button.icon">
+        <Setter Property="Width" Value="34" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
+    </Style>
+    <Style Selector="Button.icon:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#F1F3F5" />
+    </Style>
+    <Style Selector="Button.icon PathIcon">
+        <Setter Property="Width" Value="16" />
+        <Setter Property="Height" Value="16" />
+    </Style>
+
+    <!-- 顶部工具栏里的搜索 / 药丸按钮-->
+    <Style Selector="Button.toolbar">
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="11,0" />
+        <Setter Property="Background" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="Button.toolbar:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#F6F7F9" />
+    </Style>
+
+    <Style Selector="Button.warn">
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="11,0" />
+        <Setter Property="Background" Value="{DynamicResource Brush.WarningSoft}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Warning}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="Button.warn:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="#FBE9CE" />
+    </Style>
+
+    <!-- ····· 输入 ·····-->
+
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Padding" Value="11,0" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="MinHeight" Value="0" />
+    </Style>
+
+    <Style Selector="TextBox.search">
+        <Setter Property="Height" Value="38" />
+        <Setter Property="CornerRadius" Value="999" />
+        <Setter Property="Padding" Value="14,0" />
+    </Style>
+
+    <Style Selector="ComboBox">
+        <Setter Property="Background" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.BorderStrong}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="9" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Padding" Value="11,0" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- ····· 开关 ·····-->
+
+    <Style Selector="ToggleButton.switch">
+        <Setter Property="Width" Value="38" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Name="Track" CornerRadius="11" Background="#D8DDE3" Padding="2">
+                    <Border Name="Thumb" Width="18" Height="18" CornerRadius="9"
+                            Background="#FFFFFF" HorizontalAlignment="Left" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="ToggleButton.switch:checked /template/ Border#Track">
+        <Setter Property="Background" Value="{DynamicResource Brush.Success}" />
+    </Style>
+    <Style Selector="ToggleButton.switch:checked /template/ Border#Thumb">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+    <Style Selector="ToggleButton.switch:pointerover /template/ Border#Track">
+        <Setter Property="Opacity" Value="0.88" />
+    </Style>
+    <Style Selector="ToggleButton.switch:disabled /template/ Border#Track">
+        <Setter Property="Background" Value="#E4E7EB" />
+        <Setter Property="Opacity" Value="0.7" />
+    </Style>
+    <Style Selector="ToggleButton.switch:checked:disabled /template/ Border#Track">
+        <Setter Property="Background" Value="#8FC3B1" />
+    </Style>
+
+    <!-- ····· 进度 ·····-->
+
+    <Style Selector="ProgressBar">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}" />
+        <Setter Property="Background" Value="#EDEFF2" />
+        <Setter Property="Height" Value="3" />
+        <Setter Property="CornerRadius" Value="2" />
+    </Style>
+
+    <!-- ····· 列表 ·····-->
+
+    <Style Selector="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style Selector="ListBoxItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ScrollViewer">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <!-- ····· 左侧导航条 ·····-->
+
+    <Style Selector="Button.rail">
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.RailIcon}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.rail PathIcon">
+        <Setter Property="Width" Value="19" />
+        <Setter Property="Height" Value="19" />
+    </Style>
+    <Style Selector="Button.rail:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.RailHover}" />
+    </Style>
+    <Style Selector="Button.rail.active">
+        <Setter Property="Background" Value="{DynamicResource Brush.RailActive}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.RailIconActive}" />
+    </Style>
+    <Style Selector="Button.rail.active:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.RailActive}" />
+    </Style>
+
+    <Style Selector="Button.launchFab">
+        <Setter Property="Width" Value="44" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="22" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Primary}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.launchFab PathIcon">
+        <Setter Property="Width" Value="18" />
+        <Setter Property="Height" Value="18" />
+        <Setter Property="Margin" Value="3,0,0,0" />
+    </Style>
+    <Style Selector="Button.launchFab:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Brush.PrimaryHover}" />
+    </Style>
+    <Style Selector="Button.launchFab:disabled /template/ ContentPresenter">
+        <Setter Property="Background" Value="#B9BEEF" />
+    </Style>
+
+    <!-- 导航条顶部的 Logo-->
+    <Style Selector="Border.railLogo">
+        <Setter Property="Width" Value="56" />
+        <Setter Property="Height" Value="56" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                    <GradientStop Color="#6E7BF2" Offset="0" />
+                    <GradientStop Color="#4A57D5" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</Styles>

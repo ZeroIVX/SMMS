@@ -1,0 +1,172 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMMS.Desktop.ViewModels"
+             x:Class="SMMS.Desktop.Views.UpdatesPageView"
+             x:DataType="vm:UpdatesPageViewModel">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="26,22,26,24" Spacing="12">
+
+            <!-- ===== 检查状态行 ===== -->
+            <Grid ColumnDefinitions="*,Auto" Margin="2,0,2,0">
+                <TextBlock Text="{DynamicResource updates.checking}" Classes="faint"
+                           IsVisible="{Binding IsBusy}" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="{Binding RecheckText}"
+                        Command="{Binding RefreshCommand}" Classes="link"
+                        IsEnabled="{Binding !IsBusy}" />
+            </Grid>
+
+            <!-- ===== 错误 / 提示条 ===== -->
+            <Border IsVisible="{Binding HasError}"
+                    Background="{DynamicResource Brush.DangerSoft}"
+                    BorderBrush="{DynamicResource Brush.DangerBorder}" BorderThickness="1"
+                    CornerRadius="10" Padding="12,8">
+                <TextBlock Text="{Binding ErrorText}" FontSize="11.5"
+                           Foreground="{DynamicResource Brush.Danger}" TextWrapping="Wrap" />
+            </Border>
+
+            <Border IsVisible="{Binding HasStatus}"
+                    Background="{DynamicResource Brush.PrimarySoft}" BorderThickness="0"
+                    CornerRadius="10" Padding="12,8">
+                <TextBlock Text="{Binding StatusText}" FontSize="11.5"
+                           Foreground="{DynamicResource Brush.Primary}" TextWrapping="Wrap" />
+            </Border>
+
+            <!-- ===== 手动安装引导 ===== -->
+            <Border Classes="card flat" Background="{DynamicResource Brush.CardSubtle}" Padding="16,12">
+                <Grid ColumnDefinitions="Auto,*">
+                    <Ellipse Width="7" Height="7" VerticalAlignment="Top" Margin="0,5,0,0"
+                             Fill="{DynamicResource Brush.Primary}" />
+                    <TextBlock Grid.Column="1" Text="{DynamicResource updates.manualGuide}"
+                               Classes="body" TextWrapping="Wrap" Margin="10,0,0,0" />
+                </Grid>
+            </Border>
+
+            <!-- ===== 卡 1：SMAPI 版本 ===== -->
+            <Border Classes="card" Padding="20,18">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Spacing="5" Margin="0,0,18,0">
+                        <TextBlock Text="{Binding SmapiTitleText}" Classes="h2" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding SmapiNoteText}" Classes="body" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10"
+                                VerticalAlignment="Center">
+                        <Button Content="{DynamicResource updates.smapi.openDownload}"
+                                Command="{Binding OpenSmapiDownloadCommand}"
+                                Classes="primary" />
+                        <Button Content="{DynamicResource updates.smapi.notes}"
+                                Command="{Binding OpenReleaseNotesCommand}"
+                                Classes="secondary" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ===== 卡 2：可更新模组 ===== -->
+            <Border Classes="card" Padding="20,16">
+                <StackPanel>
+                    <TextBlock Text="{Binding ModsTitleText}" Classes="h2" VerticalAlignment="Center" />
+
+                    <!-- 表头 -->
+                    <Grid ColumnDefinitions="*,160,110,132" Margin="0,16,0,0">
+                        <TextBlock Text="{DynamicResource updates.mods.col.mod}" Classes="faint" />
+                        <TextBlock Grid.Column="1" Text="{DynamicResource updates.mods.col.version}" Classes="faint" />
+                        <TextBlock Grid.Column="2" Text="{DynamicResource updates.mods.col.kind}" Classes="faint" />
+                    </Grid>
+                    <Border Height="1" Background="{DynamicResource Brush.Divider}" Margin="0,8,0,0" />
+
+                    <ItemsControl ItemsSource="{Binding Updates}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:ModUpdateRowViewModel">
+                                <StackPanel>
+                                    <Grid ColumnDefinitions="*,160,110,132" Margin="0,10,0,10">
+                                        <TextBlock Text="{Binding Name}" FontSize="12.5"
+                                                   Foreground="{DynamicResource Brush.Text}"
+                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Text="{Binding VersionChangeText}"
+                                                   FontSize="11.5"
+                                                   Foreground="{DynamicResource Brush.TextSecondary}"
+                                                   VerticalAlignment="Center" />
+                                        <Border Grid.Column="2" Classes="pill warning" IsVisible="{Binding IsMajor}"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding KindText}" />
+                                        </Border>
+                                        <Border Grid.Column="2" Classes="pill neutral" IsVisible="{Binding !IsMajor}"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding KindText}" />
+                                        </Border>
+                                        <Button Grid.Column="3" Content="{Binding UpdateText}"
+                                                Command="{Binding UpdateCommand}"
+                                                Classes="secondary" Height="30" Padding="12,0"
+                                                HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    </Grid>
+                                    <Border Height="1" Background="{DynamicResource Brush.Divider}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Text="{DynamicResource updates.mods.empty}" Classes="muted"
+                               IsVisible="{Binding !HasUpdates}" Margin="0,14,0,2" />
+                </StackPanel>
+            </Border>
+
+            <!-- ===== 卡 3：可回滚节点 ===== -->
+            <Border Classes="card tight" Padding="18,14">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <TextBlock Text="{DynamicResource updates.snapshots.title}" Classes="h3"
+                               VerticalAlignment="Center" Margin="0,0,18,0" />
+
+                    <ItemsControl Grid.Column="1" ItemsSource="{Binding Snapshots.Items}"
+                                  IsVisible="{Binding HasSnapshots}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:SnapshotItemViewModel">
+                                <StackPanel Orientation="Horizontal" Spacing="7" Margin="0,2,28,2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding TimeText}" FontSize="11.5"
+                                               Foreground="{DynamicResource Brush.TextSecondary}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="·" Classes="faint" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding LabelText}" FontSize="11.5"
+                                               Foreground="{DynamicResource Brush.TextMuted}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="·" Classes="faint" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding MetaText}" FontSize="11.5"
+                                               Foreground="{DynamicResource Brush.TextMuted}"
+                                               VerticalAlignment="Center" />
+                                    <Button Content="{DynamicResource updates.snapshots.restore}"
+                                            Click="OnRestoreSnapshotClick"
+                                            Tag="{Binding}"
+                                            Classes="link" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Grid.Column="1" Text="{DynamicResource updates.snapshots.empty}"
+                               Classes="muted" VerticalAlignment="Center"
+                               IsVisible="{Binding !HasSnapshots}" />
+
+                    <Button Grid.Column="2" Classes="link"
+                            Content="{DynamicResource snapshots.create}"
+                            Command="{Binding Snapshots.CreateCommand}"
+                            VerticalAlignment="Center"
+                            Margin="16,0,0,0" />
+                </Grid>
+            </Border>
+
+            <!-- ===== 卡 4：安装前自动快照说明 ===== -->
+            <Border Classes="card flat" Background="{DynamicResource Brush.CardSubtle}" Padding="20,16">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="{DynamicResource updates.manual.title}" Classes="h3" />
+                    <TextBlock Text="{DynamicResource updates.manual.note}" Classes="body"
+                               TextWrapping="Wrap" MaxWidth="640" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,161 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMMS.Desktop.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="900"
+        x:Class="SMMS.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/smms.ico"
+        Title="{DynamicResource app.title}"
+        Width="1360" Height="900"
+        MinWidth="880" MinHeight="600"
+        Background="{DynamicResource Brush.Page}">
+
+    <Grid ColumnDefinitions="72,*">
+
+        <!-- ========== 左侧导航条 ========== -->
+        <Border Grid.Column="0" Background="{DynamicResource Brush.Rail}">
+            <Grid RowDefinitions="Auto,*,Auto">
+
+                <Border Classes="railLogo" Grid.Row="0" Margin="0,12,0,10" HorizontalAlignment="Center"
+                        Background="Transparent" CornerRadius="0">
+                    <Image Source="/Assets/logo-badge.png" Stretch="Uniform"
+                           RenderOptions.BitmapInterpolationMode="HighQuality" />
+                </Border>
+
+                <StackPanel Grid.Row="1" Spacing="6" HorizontalAlignment="Center">
+                    <Button Classes="rail" Classes.active="{Binding IsLaunchpadActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="launchpad"
+                            ToolTip.Tip="{DynamicResource nav.launchpad}">
+                        <PathIcon Data="M8,5 L19,12 L8,19 Z"
+                                  Foreground="{Binding $parent[Button].Foreground}" />
+                    </Button>
+
+                    <Button Classes="rail" Classes.active="{Binding IsProfilesActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="profiles"
+                            ToolTip.Tip="{DynamicResource nav.profiles}">
+                        <PathIcon Data="M12,2 L22,8 L12,14 L2,8 Z M4,12 L12,16.5 L20,12 V15 L12,19.5 L4,15 Z"
+                                  Foreground="{Binding $parent[Button].Foreground}" />
+                    </Button>
+
+                    <Button Classes="rail" Classes.active="{Binding IsModsActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="mods"
+                            ToolTip.Tip="{DynamicResource nav.mods}">
+                        <PathIcon Data="M3,3 H10 V10 H3 Z M11,3 H18 V10 H11 Z M3,11 H10 V18 H3 Z M11,11 H18 V18 H11 Z"
+                                  Foreground="{Binding $parent[Button].Foreground}" />
+                    </Button>
+
+                    <Button Classes="rail" Classes.active="{Binding IsVanityActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="vanity"
+                            ToolTip.Tip="{DynamicResource nav.vanity}">
+                        <PathIcon Data="M3,4 H21 V20 H3 Z M6,7 H11 V12 H6 Z M3,17 L9,12 L13,16 L17,12 L21,16 L21,20 H3 Z"
+                                  Foreground="{Binding $parent[Button].Foreground}" />
+                    </Button>
+
+                    <Button Classes="rail" Classes.active="{Binding IsDiscoverActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="discover"
+                            ToolTip.Tip="{DynamicResource nav.discover}">
+                        <PathIcon Data="M15.5,14 H14.71 L14.43,13.73 C15.41,12.59 16,11.11 16,9.5 C16,5.91 13.09,3 9.5,3 C5.91,3 3,5.91 3,9.5 C3,13.09 5.91,16 9.5,16 C11.11,16 12.59,15.41 13.73,14.43 L14,14.71 V15.5 L19,20.49 L20.49,19 Z M9.5,14 C7.01,14 5,11.99 5,9.5 C5,7.01 7.01,5 9.5,5 C11.99,5 14,7.01 14,9.5 C14,11.99 11.99,14 9.5,14 Z"
+                                  Foreground="{Binding $parent[Button].Foreground}" />
+                    </Button>
+
+                    <Button Classes="rail" Classes.active="{Binding IsUpdatesActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="updates"
+                            ToolTip.Tip="{DynamicResource nav.updates}">
+                        <PathIcon Data="M11,3 H13 V12 H16 L12,17 L8,12 H11 Z M4,18 H20 V21 H4 Z"
+                                  Foreground="{Binding $parent[Button].Foreground}" />
+                    </Button>
+
+                    <Button Classes="rail" Classes.active="{Binding IsDiagnosticsActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="diagnostics"
+                            ToolTip.Tip="{DynamicResource nav.diagnostics}">
+                        <PathIcon Data="M12,2 L20,5.5 V11.5 C20,16.5 16.6,20.4 12,22 C7.4,20.4 4,16.5 4,11.5 V5.5 Z M11,7 V13 H13 V7 Z M11,15 V17 H13 V15 Z"
+                                  Foreground="{Binding $parent[Button].Foreground}" />
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Spacing="10" Margin="0,0,0,18" HorizontalAlignment="Center">
+                    <Button Classes="rail" Classes.active="{Binding IsSettingsActive}"
+                            Command="{Binding NavigateCommand}" CommandParameter="settings"
+                            ToolTip.Tip="{DynamicResource nav.settings}">
+                        <PathIcon Data="M12,2 L14,5 H17 L19,8 L18,11 L19,14 L17,17 H14 L12,20 L10,17 H7 L5,14 L6,11 L5,8 L7,5 H10 Z M12,8 A4,4 0 1,0 12.01,8 Z"
+                                  Foreground="{Binding $parent[Button].Foreground}" />
+                    </Button>
+
+                    <Button Classes="launchFab"
+                            Command="{Binding LaunchCommand}"
+                            IsEnabled="{Binding CanLaunch}"
+                            ToolTip.Tip="{Binding LaunchTooltip}">
+                        <PathIcon Data="M8,5 L19,12 L8,19 Z" Foreground="#FFFFFF" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ========== 右侧：顶栏 + 内容 ========== -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
+
+            <Border Grid.Row="0" Background="#FFFFFF"
+                    BorderBrush="{DynamicResource Brush.Divider}" BorderThickness="0,0,0,1"
+                    Height="64" Padding="24,0">
+                <Grid ColumnDefinitions="*,Auto">
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <TextBlock Classes="h1" Text="{Binding CurrentPage.PageTitle}" />
+                        <Border Width="1" Height="15" Background="{DynamicResource Brush.Divider}" />
+                        <TextBlock Classes="muted" Text="{Binding CurrentPage.PageSubtitle}"
+                                   TextTrimming="CharacterEllipsis" MaxWidth="520" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Button Classes="icon" Command="{Binding OpenSearchCommand}"
+                                ToolTip.Tip="{DynamicResource topbar.search}">
+                            <PathIcon Data="M15.5,14 H14.71 L14.43,13.73 C15.41,12.59 16,11.11 16,9.5 C16,5.91 13.09,3 9.5,3 C5.91,3 3,5.91 3,9.5 C3,13.09 5.91,16 9.5,16 C11.11,16 12.59,15.41 13.73,14.43 L14,14.71 V15.5 L19,20.49 L20.49,19 Z M9.5,14 C7.01,14 5,11.99 5,9.5 C5,7.01 7.01,5 9.5,5 C11.99,5 14,7.01 14,9.5 C14,11.99 11.99,14 9.5,14 Z" />
+                        </Button>
+
+                        <Button Classes="warn" IsVisible="{Binding HasPendingIssues}"
+                                Command="{Binding OpenDiagnosticsCommand}"
+                                ToolTip.Tip="{DynamicResource topbar.pendingHint}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Ellipse Width="6" Height="6" Fill="{DynamicResource Brush.Warning}"
+                                         VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding PendingSummary}" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <Border Classes="pill success" IsVisible="{Binding IsHealthy}">
+                            <TextBlock Text="{DynamicResource topbar.healthy}" />
+                        </Border>
+
+                        <ComboBox Width="168" ItemsSource="{Binding Profiles}"
+                                  SelectedItem="{Binding SelectedProfile}"
+                                  ToolTip.Tip="{DynamicResource launch.profileTip}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="vm:ProfileItemViewModel">
+                                    <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" IsVisible="{Binding HasError}"
+                    Background="{DynamicResource Brush.DangerSoft}"
+                    BorderBrush="{DynamicResource Brush.DangerBorder}" BorderThickness="0,0,0,1"
+                    Padding="24,8">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="{Binding ErrorText}" FontSize="12" Foreground="{DynamicResource Brush.Danger}"
+                               VerticalAlignment="Center" TextWrapping="Wrap" />
+                    <Button Grid.Column="1" Classes="link" Content="×"
+                            Command="{Binding DismissErrorCommand}" Foreground="{DynamicResource Brush.Danger}" />
+                </Grid>
+            </Border>
+
+            <ContentControl Grid.Row="2" Content="{Binding CurrentPage}"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch" />
+        </Grid>
+    </Grid>
+</Window>

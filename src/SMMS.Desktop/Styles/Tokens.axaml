@@ -1,0 +1,62 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============ 颜色令牌（取自设计稿采样） ============ -->
+
+    <!-- 底板与容器 -->
+    <SolidColorBrush x:Key="Brush.Page" Color="#F5F6F7" />
+    <SolidColorBrush x:Key="Brush.Card" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Brush.CardSubtle" Color="#FAFBFC" />
+    <SolidColorBrush x:Key="Brush.Border" Color="#E8EAED" />
+    <SolidColorBrush x:Key="Brush.BorderStrong" Color="#DDE1E6" />
+
+    <!-- 文字 -->
+    <SolidColorBrush x:Key="Brush.Text" Color="#121B25" />
+    <SolidColorBrush x:Key="Brush.TextSecondary" Color="#4A5460" />
+    <SolidColorBrush x:Key="Brush.TextMuted" Color="#7C8794" />
+    <SolidColorBrush x:Key="Brush.TextFaint" Color="#A6AEB5" />
+
+    <!-- 主色（紫蓝） -->
+    <SolidColorBrush x:Key="Brush.Primary" Color="#4A57D5" />
+    <SolidColorBrush x:Key="Brush.PrimaryHover" Color="#3D49C4" />
+    <SolidColorBrush x:Key="Brush.PrimaryPressed" Color="#3540B0" />
+    <SolidColorBrush x:Key="Brush.PrimarySoft" Color="#EEF0FE" />
+
+    <!-- 状态色 -->
+    <SolidColorBrush x:Key="Brush.Success" Color="#0E7957" />
+    <SolidColorBrush x:Key="Brush.SuccessSoft" Color="#EAF6F1" />
+    <SolidColorBrush x:Key="Brush.Warning" Color="#A56109" />
+    <SolidColorBrush x:Key="Brush.WarningSoft" Color="#FDF3E3" />
+    <SolidColorBrush x:Key="Brush.WarningBand" Color="#FDF6EC" />
+    <SolidColorBrush x:Key="Brush.Danger" Color="#BE3A2E" />
+    <SolidColorBrush x:Key="Brush.DangerSoft" Color="#FBEDEB" />
+    <SolidColorBrush x:Key="Brush.DangerBorder" Color="#F0D2CE" />
+    <SolidColorBrush x:Key="Brush.Mint" Color="#7ED9B4" />
+
+    <!-- 导航条与 Hero -->
+    <SolidColorBrush x:Key="Brush.Rail" Color="#111A21" />
+    <SolidColorBrush x:Key="Brush.RailHover" Color="#1C2833" />
+    <SolidColorBrush x:Key="Brush.RailActive" Color="#243241" />
+    <SolidColorBrush x:Key="Brush.RailIcon" Color="#93A0AC" />
+    <SolidColorBrush x:Key="Brush.RailIconActive" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Brush.Hero" Color="#121B25" />
+    <SolidColorBrush x:Key="Brush.HeroGlow" Color="#16332B" />
+
+    <!-- 遮罩与分隔 -->
+    <SolidColorBrush x:Key="Brush.Scrim" Color="#B3000000" />
+    <SolidColorBrush x:Key="Brush.Divider" Color="#EDEFF2" />
+
+    <!-- ============ 尺寸与圆角 ============ -->
+
+    <CornerRadius x:Key="Radius.Card">14</CornerRadius>
+    <CornerRadius x:Key="Radius.Control">9</CornerRadius>
+    <CornerRadius x:Key="Radius.Pill">999</CornerRadius>
+
+    <x:Double x:Key="FontSize.H1">17</x:Double>
+    <x:Double x:Key="FontSize.H2">14</x:Double>
+    <x:Double x:Key="FontSize.H3">13</x:Double>
+    <x:Double x:Key="FontSize.Body">12.5</x:Double>
+    <x:Double x:Key="FontSize.Small">11.5</x:Double>
+    <x:Double x:Key="FontSize.Micro">11</x:Double>
+
+</ResourceDictionary>

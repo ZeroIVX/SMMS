@@ -1,0 +1,321 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMMS.Desktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1288" d:DesignHeight="836"
+             x:Class="SMMS.Desktop.Views.LaunchpadPageView"
+             x:DataType="vm:LaunchpadPageViewModel">
+
+    <UserControl.Styles>
+        <!-- 快捷操作（窗口 <1100 时自动折成两行，见 code-behind） -->
+        <Style Selector="Button.quick">
+            <Setter Property="Height" Value="56" />
+            <Setter Property="Padding" Value="18,0" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Card}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="14" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+            <Setter Property="FontSize" Value="12.5" />
+        </Style>
+        <Style Selector="Button.quick:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Brush.CardSubtle}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.BorderStrong}" />
+        </Style>
+        <Style Selector="Button.quick PathIcon">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
+        </Style>
+
+        <!-- 右栏键值行 -->
+        <Style Selector="TextBlock.kvLabel">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="TextBlock.kvValue">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid x:Name="PageGrid" Margin="24,20,24,24" ColumnDefinitions="*,360" ColumnSpacing="16">
+
+            <!-- ==================== 左栏 ==================== -->
+            <StackPanel Grid.Column="0" Spacing="14">
+
+                <!-- Hero -->
+                <Border Classes="hero" TextOptions.TextRenderingMode="Antialias">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                        <StackPanel Spacing="16">
+                            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ProfileName}" FontSize="26" FontWeight="SemiBold"
+                                           Foreground="#FFFFFF" VerticalAlignment="Center" />
+
+                                <Border Classes="pill success" IsVisible="{Binding IsStatusOk}">
+                                    <TextBlock Text="{Binding StatusText}" />
+                                </Border>
+                                <Border Classes="pill warning" IsVisible="{Binding IsStatusWarn}">
+                                    <TextBlock Text="{Binding StatusText}" />
+                                </Border>
+                                <Border Classes="pill danger" IsVisible="{Binding IsStatusBad}">
+                                    <TextBlock Text="{Binding StatusText}" />
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding HeroMetaText}" FontSize="12" Foreground="#9BA9B7" />
+
+                            <StackPanel Orientation="Horizontal" Spacing="30" Margin="0,4,0,0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{Binding MissingDependencyCount}" FontSize="17" FontWeight="SemiBold"
+                                               Foreground="#FFFFFF" />
+                                    <TextBlock Text="{DynamicResource launchpad.missingDeps}" FontSize="11.5"
+                                               Foreground="#8496A6" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{Binding ConflictCount}" FontSize="17" FontWeight="SemiBold"
+                                               Foreground="#FFFFFF" />
+                                    <TextBlock Text="{DynamicResource launchpad.conflicts}" FontSize="11.5"
+                                               Foreground="#8496A6" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="{Binding UpdateCountText}" FontSize="17" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource Brush.Mint}" />
+                                    <TextBlock Text="{DynamicResource launchpad.updates}" FontSize="11.5"
+                                               Foreground="#8496A6" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- 启动按钮独立成列，相对整张卡片垂直居中 -->
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button Classes="primary" Height="46" Width="214" FontSize="14"
+                                    Content="{Binding $parent[Window].DataContext.LaunchButtonText}"
+                                    Command="{Binding $parent[Window].DataContext.LaunchCommand}"
+                                    IsEnabled="{Binding $parent[Window].DataContext.CanLaunch}"
+                                    ToolTip.Tip="{Binding $parent[Window].DataContext.LaunchTooltip}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 待处理 -->
+                <Border Classes="card">
+                    <StackPanel Spacing="4">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Classes="h2" Text="{DynamicResource launchpad.pendingTitle}" />
+                                <Border Classes="pill warning">
+                                    <TextBlock Text="{Binding PendingCount}" />
+                                </Border>
+                            </StackPanel>
+                            <Button Grid.Column="1" Classes="link" VerticalAlignment="Center"
+                                    Content="{DynamicResource launchpad.viewAll}"
+                                    Command="{Binding ViewAllIssuesCommand}" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding PendingIssues}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:PendingIssueItem">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,13,0,0">
+                                        <Grid Width="14" VerticalAlignment="Top" Margin="0,5,0,0">
+                                            <Ellipse Width="8" Height="8" Fill="{DynamicResource Brush.Danger}"
+                                                     IsVisible="{Binding IsBad}" />
+                                            <Ellipse Width="8" Height="8" Fill="{DynamicResource Brush.Warning}"
+                                                     IsVisible="{Binding IsWarn}" />
+                                            <Ellipse Width="8" Height="8" Fill="{DynamicResource Brush.TextFaint}"
+                                                     IsVisible="{Binding IsInfo}" />
+                                        </Grid>
+
+                                        <StackPanel Grid.Column="1" Spacing="3">
+                                            <TextBlock Text="{Binding Title}" FontSize="12.5"
+                                                       Foreground="{DynamicResource Brush.Text}"
+                                                       TextWrapping="Wrap" />
+                                            <TextBlock Text="{Binding Detail}" Classes="small"
+                                                       IsVisible="{Binding HasDetail}" TextWrapping="Wrap" />
+                                        </StackPanel>
+
+                                        <Button Grid.Column="2" Classes="link" VerticalAlignment="Center"
+                                                Content="{Binding ActionText}"
+                                                Command="{Binding $parent[UserControl].DataContext.OpenIssueCommand}"
+                                                CommandParameter="{Binding}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Classes="muted" Margin="0,14,0,0"
+                                   Text="{DynamicResource launchpad.pendingEmpty}"
+                                   IsVisible="{Binding !HasPending}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 快捷操作（<1100 时自动折成两行，见 code-behind） -->
+                <UniformGrid x:Name="QuickActions" Columns="4" Margin="0,0,-12,-12">
+                    <Button Classes="quick" Margin="0,0,12,12" Command="{Binding RefreshScanCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <PathIcon Data="M12,4 A8,8 0 1,1 4,12 M12,1 V7 H6" />
+                            <TextBlock Text="{DynamicResource launchpad.quickRefresh}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="quick" Margin="0,0,12,12" Command="{Binding OpenModsFolderCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <PathIcon Data="M3,5 H10 L12,7 H21 V19 H3 Z" />
+                            <TextBlock Text="{DynamicResource launchpad.quickOpenMods}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="quick" Margin="0,0,12,12" Click="OnImportClick">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <PathIcon Data="M12,3 V13 M8,9 L12,13 L16,9 M4,16 V20 H20 V16" />
+                            <TextBlock Text="{DynamicResource launchpad.quickImport}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Classes="quick" Margin="0,0,12,12" Command="{Binding BackupNowCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <PathIcon Data="M4,4 H17 V20 H4 Z M7,8 H14 V10 H7 Z M7,12 H14 V14 H7 Z" />
+                            <TextBlock Text="{DynamicResource launchpad.quickBackup}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </UniformGrid>
+
+                <!-- 自上次启动以来 -->
+                <Border Classes="card">
+                    <StackPanel Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Classes="h2" Text="{DynamicResource launchpad.historyTitle}" />
+                            <Button Grid.Column="1" Classes="link" VerticalAlignment="Center"
+                                    Content="{DynamicResource launchpad.historyAction}"
+                                    Command="{Binding RestoreSnapshotCommand}" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding History}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:LaunchpadHistoryItem">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,9,0,0">
+                                        <Ellipse Width="7" Height="7" Margin="0,0,10,0" VerticalAlignment="Center"
+                                                 Fill="{DynamicResource Brush.Primary}" />
+                                        <TextBlock Grid.Column="1" Classes="body" Text="{Binding Text}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="2" Classes="faint" Text="{Binding TimeText}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Classes="muted" Margin="0,8,0,0"
+                                   Text="{DynamicResource launchpad.historyEmpty}"
+                                   IsVisible="{Binding !HasHistory}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ==================== 右栏 ==================== -->
+            <StackPanel Grid.Column="1" Spacing="14">
+
+                <!-- 本次会话 -->
+                <Border Classes="card tight">
+                    <StackPanel Spacing="14">
+                        <TextBlock Classes="h3" Text="{DynamicResource launchpad.sessionTitle}" />
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Classes="kvLabel" Text="{DynamicResource launchpad.sessionProcess}" />
+                            <TextBlock Grid.Column="1" Classes="kvValue" Text="{Binding SessionProcessText}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Classes="kvLabel" Text="{DynamicResource launchpad.lastLaunch}" />
+                            <TextBlock Grid.Column="1" Classes="kvValue" Text="{Binding LastLaunchText}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Classes="kvLabel" Text="{DynamicResource launchpad.lastScan}" />
+                            <TextBlock Grid.Column="1" Classes="kvValue" Text="{Binding LastScanText}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 最近备份 -->
+                <Border Classes="card tight">
+                    <StackPanel Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Classes="h3" Text="{DynamicResource launchpad.backupsTitle}" />
+                            <Button Grid.Column="1" Classes="link" VerticalAlignment="Center"
+                                    Content="{DynamicResource launchpad.quickBackup}"
+                                    Command="{Binding BackupNowCommand}"
+                                    ToolTip.Tip="{DynamicResource launchpad.backupNowTip}" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding RecentSnapshots}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:LaunchpadSnapshotItem">
+                                    <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="{Binding LabelText}" FontSize="12"
+                                                       Foreground="{DynamicResource Brush.Text}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Classes="faint" Text="{Binding TimeText}" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Classes="link" VerticalAlignment="Center"
+                                                Content="{DynamicResource launchpad.restore}"
+                                                Command="{Binding $parent[UserControl].DataContext.RestoreSnapshotCommand}"
+                                                CommandParameter="{Binding}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Classes="muted" Text="{DynamicResource launchpad.backupsEmpty}"
+                                   IsVisible="{Binding !HasRecentSnapshots}" />
+
+                        <Button Classes="link" HorizontalAlignment="Left"
+                                Content="{DynamicResource launchpad.backupsAll}"
+                                Command="{Binding RestoreSnapshotCommand}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 切换环境 -->
+                <Border Classes="card tight">
+                    <StackPanel Spacing="10">
+                        <TextBlock Classes="h3" Text="{DynamicResource launchpad.envTitle}" />
+
+                        <ItemsControl ItemsSource="{Binding Environments}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:LaunchpadEnvironmentItem">
+                                    <Button Classes="ghost" Padding="0" Height="26"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            Command="{Binding $parent[UserControl].DataContext.SelectEnvironmentCommand}"
+                                            CommandParameter="{Binding}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <Ellipse Width="7" Height="7" Margin="0,0,9,0" VerticalAlignment="Center"
+                                                     Fill="{DynamicResource Brush.Success}"
+                                                     IsVisible="{Binding IsActive}" />
+                                            <Ellipse Width="7" Height="7" Margin="0,0,9,0" VerticalAlignment="Center"
+                                                     Fill="{DynamicResource Brush.TextFaint}"
+                                                     IsVisible="{Binding !IsActive}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="12"
+                                                       Foreground="{DynamicResource Brush.Text}" />
+                                            <TextBlock Grid.Column="2" Classes="faint" Text="{Binding CountText}" />
+                                        </Grid>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Button Classes="link" HorizontalAlignment="Left"
+                                Content="{DynamicResource launchpad.manageProfiles}"
+                                Command="{Binding ManageProfilesCommand}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Classes="card tight" IsVisible="{Binding HasError}">
+                    <TextBlock Text="{Binding ErrorText}" Classes="small"
+                               Foreground="{DynamicResource Brush.Danger}" TextWrapping="Wrap" />
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

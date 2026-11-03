@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SMMS.Core/SMMS.Core.csproj" />
+    <Project Path="src/SMMS.UseCases/SMMS.UseCases.csproj" />
+    <Project Path="src/SMMS.Infrastructure/SMMS.Infrastructure.csproj" />
+    <Project Path="src/SMMS.Desktop/SMMS.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SMMS.Core.Tests/SMMS.Core.Tests.csproj" />
+    <Project Path="tests/SMMS.UseCases.Tests/SMMS.UseCases.Tests.csproj" />
+  </Folder>
+</Solution>

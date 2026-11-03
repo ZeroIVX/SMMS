@@ -1,0 +1,630 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SMMS.Desktop.Views.ModsPageView"
+             Background="Transparent">
+
+  <UserControl.Resources>
+    <!-- 依赖 / 被依赖清单的一行 -->
+    <DataTemplate x:Key="RelationRowTemplate">
+      <Grid ColumnDefinitions="*,Auto" Margin="0,5,0,5">
+        <TextBlock Text="{Binding Name}"
+                   FontSize="12.5"
+                   Foreground="{DynamicResource Brush.Text}"
+                   TextTrimming="CharacterEllipsis"
+                   VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1"
+                   Text="{Binding StatusText}"
+                   Classes="small"
+                   Foreground="{DynamicResource Brush.Success}"
+                   IsVisible="{Binding !IsMissing}"
+                   VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1"
+                   Text="{Binding StatusText}"
+                   Classes="small"
+                   Foreground="{DynamicResource Brush.Danger}"
+                   IsVisible="{Binding IsMissing}"
+                   VerticalAlignment="Center"/>
+      </Grid>
+    </DataTemplate>
+
+    <!-- 表格一行。顺序 / 状态圆点 + 名称与 UniqueID / 依赖数 / 版本与更新 / 启用开关 -->
+    <DataTemplate x:Key="ModRowTemplate">
+      <Grid Height="{Binding $parent[ListBox].DataContext.RowHeight}"
+            ColumnDefinitions="54,*,68,112,64"
+            ToolTip.Tip="{Binding Tooltip}">
+        <TextBlock Grid.Column="0"
+                   Text="{Binding OrderText}"
+                   Classes="faint"
+                   Margin="18,0,0,0"
+                   VerticalAlignment="Center"/>
+
+        <Grid Grid.Column="1" ColumnDefinitions="Auto,*" Margin="0,0,14,0" VerticalAlignment="Center">
+          <Ellipse Width="7" Height="7"
+                   Fill="{DynamicResource Brush.Success}"
+                   VerticalAlignment="Center"
+                   IsVisible="{Binding !HasRisk}"/>
+          <Ellipse Width="7" Height="7"
+                   Fill="{DynamicResource Brush.Warning}"
+                   VerticalAlignment="Center"
+                   IsVisible="{Binding HasRisk}"
+                   ToolTip.Tip="{Binding RiskTip}"/>
+          <StackPanel Grid.Column="1" Margin="9,0,0,0" Spacing="1" VerticalAlignment="Center">
+            <TextBlock Text="{Binding Name}"
+                       FontSize="13"
+                       Foreground="{DynamicResource Brush.Text}"
+                       TextTrimming="CharacterEllipsis"/>
+            <TextBlock Text="{Binding SubtitleText}"
+                       Classes="faint"
+                       TextTrimming="CharacterEllipsis"/>
+
+            <!-- 备注是玩家自己写的，比作者简介重要，用标签 + 更深的字色区分 -->
+            <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,2,0,0"
+                        IsVisible="{Binding HasNote}"
+                        ToolTip.Tip="{Binding Note}">
+              <Border Background="{DynamicResource Brush.PrimarySoft}"
+                      CornerRadius="3" Padding="4,1" VerticalAlignment="Center">
+                <TextBlock Text="{DynamicResource mods.noteBadge}" FontSize="9.5"
+                           Foreground="{DynamicResource Brush.Primary}" />
+              </Border>
+              <TextBlock Text="{Binding NotePreview}"
+                         FontSize="11.5"
+                         Foreground="{DynamicResource Brush.TextSecondary}"
+                         MaxLines="1"
+                         TextTrimming="CharacterEllipsis"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+          </StackPanel>
+        </Grid>
+
+        <TextBlock Grid.Column="2"
+                   Text="{Binding DependencyCountText}"
+                   Classes="faint"
+                   Margin="0,0,18,0"
+                   TextAlignment="Right"
+                   VerticalAlignment="Center"
+                   IsVisible="{Binding $parent[ListBox].DataContext.IsDependencyColumnVisible}"/>
+
+        <StackPanel Grid.Column="3"
+                    Orientation="Horizontal"
+                    Spacing="6"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center">
+          <TextBlock Text="{Binding VersionText}"
+                     FontSize="12"
+                     Foreground="{DynamicResource Brush.TextSecondary}"
+                     VerticalAlignment="Center"/>
+          <TextBlock Text="{Binding UpdateText}"
+                     FontSize="11"
+                     Foreground="{DynamicResource Brush.Warning}"
+                     VerticalAlignment="Center"
+                     IsVisible="{Binding HasUpdate}"/>
+        </StackPanel>
+
+        <ToggleButton Grid.Column="4"
+                      Classes="switch"
+                      IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                      Command="{Binding ToggleCommand}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+      </Grid>
+    </DataTemplate>
+
+    <!-- 右侧详情面板（宽布局固定列 / 窄布局抽屉共用） -->
+    <DataTemplate x:Key="ModDetailPanel">
+      <Border Classes="card" Padding="0" ClipToBounds="True">
+        <Grid RowDefinitions="*,Auto">
+          <!-- 没有选中项：居中留白提示，限制在面板内两行以内 -->
+          <StackPanel Grid.Row="0"
+                      Spacing="6"
+                      Margin="24"
+                      MaxWidth="240"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      IsVisible="{Binding !HasSelection}">
+            <TextBlock Text="{DynamicResource mods.detail.empty}"
+                       Classes="muted"
+                       TextWrapping="Wrap"
+                       MaxLines="2"
+                       TextAlignment="Center"/>
+          </StackPanel>
+
+          <ScrollViewer Grid.Row="0"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled"
+                        IsVisible="{Binding HasSelection}">
+            <StackPanel Margin="18,16,18,8" Spacing="14">
+
+              <!-- 窄窗口抽屉的关闭行 -->
+              <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding !IsWideLayout}">
+                <TextBlock Classes="small" Text="{DynamicResource mods.detail.title}" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Classes="icon" Command="{Binding ToggleDetailDrawerCommand}"
+                        ToolTip.Tip="{DynamicResource mods.detail.close}">
+                  <PathIcon Data="M6,6 L18,18 M18,6 L6,18"/>
+                </Button>
+              </Grid>
+
+              <!-- 标题区 -->
+              <StackPanel Spacing="6">
+                <Grid ColumnDefinitions="Auto,*">
+                  <Ellipse Width="7" Height="7"
+                           Fill="{DynamicResource Brush.Success}"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding !SelectedMod.HasRisk}"/>
+                  <Ellipse Width="7" Height="7"
+                           Fill="{DynamicResource Brush.Warning}"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding SelectedMod.HasRisk}"
+                           ToolTip.Tip="{Binding SelectedMod.RiskTip}"/>
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding SelectedMod.Name}"
+                             Classes="h2"
+                             Margin="9,0,0,0"
+                             TextWrapping="Wrap"/>
+                </Grid>
+                <TextBlock Text="{Binding SelectedMod.MetaText}" Classes="muted"/>
+                <WrapPanel>
+                  <Border Classes="pill primary" Margin="0,0,6,6">
+                    <TextBlock Text="{Binding SelectedMod.KindTagText}"/>
+                  </Border>
+                  <Border Classes="pill success" Margin="0,0,6,6" IsVisible="{Binding SelectedMod.HasChinese}">
+                    <TextBlock Text="{DynamicResource mods.detail.chinese}"/>
+                  </Border>
+                  <Border Classes="pill danger" Margin="0,0,6,6" IsVisible="{Binding SelectedMod.IsIncompatible}">
+                    <TextBlock Text="{Binding SelectedMod.RiskPillText}"/>
+                  </Border>
+                  <Border Classes="pill danger" Margin="0,0,6,6" IsVisible="{Binding SelectedMod.HasMissingDependencies}">
+                    <TextBlock Text="{Binding SelectedMod.DependenciesSummaryText}"/>
+                  </Border>
+                  <Border Classes="pill warning" Margin="0,0,6,6" IsVisible="{Binding SelectedMod.HasUpdate}">
+                    <TextBlock Text="{Binding SelectedMod.UpdateText}"/>
+                  </Border>
+                </WrapPanel>
+              </StackPanel>
+
+              <!-- 琥珀提示条：有新版本 → 主操作引导到更新 -->
+              <Border Background="{DynamicResource Brush.WarningBand}"
+                      CornerRadius="10"
+                      Padding="12,9"
+                      IsVisible="{Binding SelectedMod.HasUpdate}">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Text="{Binding SelectedMod.UpdateBannerText}"
+                             Classes="small"
+                             Foreground="{DynamicResource Brush.Warning}"
+                             TextWrapping="Wrap"
+                             VerticalAlignment="Center"/>
+                  <Button Grid.Column="1"
+                          Classes="link"
+                          Content="{DynamicResource mods.detail.updateLink}"
+                          Command="{Binding OpenUrlCommand}"
+                          CommandParameter="{Binding SelectedMod.Update.UpdateUrl}"
+                          VerticalAlignment="Center"/>
+                </Grid>
+              </Border>
+
+              <Border Height="1" Background="{DynamicResource Brush.Divider}"/>
+
+              <!-- 依赖 -->
+              <StackPanel Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Classes="sectionTitle" Text="{Binding SelectedMod.DependenciesHeaderText}"/>
+                  <TextBlock Grid.Column="1"
+                             Classes="small"
+                             Foreground="{DynamicResource Brush.Success}"
+                             Text="{Binding SelectedMod.DependenciesSummaryText}"
+                             IsVisible="{Binding SelectedMod.AllDependenciesMet}"/>
+                  <TextBlock Grid.Column="1"
+                             Classes="small"
+                             Foreground="{DynamicResource Brush.Danger}"
+                             Text="{Binding SelectedMod.DependenciesSummaryText}"
+                             IsVisible="{Binding SelectedMod.HasMissingDependencies}"/>
+                </Grid>
+                <ItemsControl ItemsSource="{Binding SelectedMod.DependencyRows}"
+                              ItemTemplate="{StaticResource RelationRowTemplate}"/>
+              </StackPanel>
+
+              <!-- 被依赖 -->
+              <StackPanel Spacing="6" IsVisible="{Binding SelectedMod.HasDependents}">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Classes="sectionTitle" Text="{Binding SelectedMod.DependentsHeaderText}"/>
+                  <Button Grid.Column="1"
+                          Classes="link"
+                          Content="{DynamicResource mods.detail.viewGraph}"
+                          Command="{Binding OpenDependencyGraphCommand}"/>
+                </Grid>
+                <TextBlock Text="{Binding SelectedMod.DependentsInlineText}"
+                           Classes="muted"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+
+              <Border Height="1" Background="{DynamicResource Brush.Divider}"/>
+
+              <!-- 加载顺序 -->
+              <StackPanel Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Classes="sectionTitle" Text="{DynamicResource mods.loadOrder.title}"/>
+                  <TextBlock Grid.Column="1"
+                             Classes="small"
+                             Foreground="{DynamicResource Brush.Primary}"
+                             Text="{Binding SelectedMod.LoadOrderText}"/>
+                </Grid>
+                <TextBlock Classes="muted"
+                           Text="{DynamicResource mods.loadOrder.desc}"
+                           TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <Button Classes="secondary"
+                          Content="{DynamicResource mods.loadOrder.up}"
+                          Command="{Binding MoveUpCommand}"/>
+                  <Button Classes="secondary"
+                          Content="{DynamicResource mods.loadOrder.down}"
+                          Command="{Binding MoveDownCommand}"/>
+                </StackPanel>
+              </StackPanel>
+
+              <Border Height="1" Background="{DynamicResource Brush.Divider}"/>
+
+              <!-- 描述与备注 -->
+              <StackPanel Spacing="6">
+                <TextBlock Classes="sectionTitle" Text="{DynamicResource mods.detail.description}"/>
+                <TextBlock Text="{Binding SelectedMod.DescriptionText}"
+                           Classes="muted"
+                           TextWrapping="Wrap"
+                           MaxLines="6"/>
+
+                <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                  <TextBlock Classes="small" Text="{DynamicResource mods.detail.note}" VerticalAlignment="Center"/>
+                  <Button Grid.Column="1"
+                          Classes="link"
+                          Content="{DynamicResource mods.detail.translate}"
+                          Command="{Binding TranslateDescriptionCommand}"
+                          ToolTip.Tip="{DynamicResource mods.detail.translateTip}"
+                          IsVisible="{Binding !IsTranslatingNote}"/>
+                  <ProgressBar Grid.Column="1"
+                               Width="64"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding IsTranslatingNote}"/>
+                </Grid>
+                <TextBox Text="{Binding CurrentNote, Mode=TwoWay}"
+                         PlaceholderText="{DynamicResource mods.detail.notePlaceholder}"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="56"
+                         LostFocus="OnNoteLostFocus"/>
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Grid.Column="1"
+                              Orientation="Horizontal"
+                              Spacing="8"
+                              HorizontalAlignment="Right">
+                    <Button Classes="icon"
+                            Command="{Binding ClearNoteCommand}"
+                            ToolTip.Tip="{DynamicResource mods.note.clear}"
+                            IsVisible="{Binding SelectedMod.HasNote}">
+                      <PathIcon Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                    </Button>
+                    <Button Classes="secondary"
+                            Content="{DynamicResource mods.note.save}"
+                            Command="{Binding SaveNoteCommand}"/>
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+            </StackPanel>
+          </ScrollViewer>
+
+          <!-- 底部主操作 -->
+          <Grid Grid.Row="1"
+                ColumnDefinitions="*,Auto"
+                Margin="18,8,18,16"
+                IsVisible="{Binding HasSelection}">
+            <Button Classes="primary"
+                    Content="{Binding SelectedMod.PrimaryActionText}"
+                    Command="{Binding PrimaryActionCommand}"
+                    HorizontalAlignment="Stretch"/>
+            <Button Grid.Column="1"
+                    Classes="icon"
+                    Margin="8,0,0,0"
+                    Command="{Binding OpenModsFolderCommand}"
+                    ToolTip.Tip="{DynamicResource mods.openFolder}">
+              <PathIcon Data="M10,4H4C2.89,4 2.01,4.89 2.01,6L2,18c0,1.11 0.89,2 2,2h16c1.11,0 2-0.89 2-2V8c0-1.11-0.89-2-2-2h-8l-2-2z"/>
+            </Button>
+          </Grid>
+        </Grid>
+      </Border>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <UserControl.Styles>
+    <!-- 工具栏筛选胶囊 -->
+    <Style Selector="Button.chip">
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="Padding" Value="13,0"/>
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Foreground" Value="{DynamicResource Brush.TextSecondary}"/>
+    </Style>
+    <Style Selector="Button.chip:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Brush.CardSubtle}"/>
+    </Style>
+    <Style Selector="Button.chip.active">
+      <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Brush.PrimarySoft}"/>
+      <Setter Property="Foreground" Value="{DynamicResource Brush.Primary}"/>
+    </Style>
+    <Style Selector="Button.chip.warn.active">
+      <Setter Property="Background" Value="{DynamicResource Brush.WarningSoft}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warning}"/>
+      <Setter Property="Foreground" Value="{DynamicResource Brush.Warning}"/>
+    </Style>
+
+    <!-- 详情面板分区标题 -->
+    <Style Selector="TextBlock.sectionTitle">
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Foreground" Value="{DynamicResource Brush.Text}"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- 表格行：悬停浅灰、选中浅紫（全局样式把两者都置为透明，这里覆盖回来） -->
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource Brush.CardSubtle}"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource Brush.PrimarySoft}"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="20,16,20,18">
+    <!-- 工具栏：宽布局单行；窄布局（<1280）拆两行，避免 940 宽下右侧按钮被裁切 -->
+    <StackPanel Grid.Row="0" Spacing="10" Margin="0,0,0,14">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+      <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+        <Grid Width="300" VerticalAlignment="Center">
+          <TextBox Classes="search"
+                   Padding="38,0,14,0"
+                   Text="{Binding SearchText, Mode=TwoWay}"
+                   PlaceholderText="{DynamicResource mods.search}"/>
+          <PathIcon Data="M15.5,14h-0.79l-0.28-0.27C15.41,12.59 16,11.11 16,9.5 16,5.91 13.09,3 9.5,3S3,5.91 3,9.5 5.91,16 9.5,16c1.61,0 3.09-0.59 4.23-1.57l0.27,0.28v0.79l5,4.99L20.49,19l-4.99-5zM9.5,14C7.01,14 5,11.99 5,9.5S7.01,5 9.5,5 14,7.01 14,9.5 11.99,14 9.5,14z"
+                    Width="14" Height="14"
+                    Margin="14,0,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Foreground="{DynamicResource Brush.TextMuted}"
+                    IsHitTestVisible="False"/>
+        </Grid>
+
+        <!-- 选中态用「同一位置的两颗按钮 + IsVisible」表达：Classes.active 的绑定在 Avalonia 下不可靠，
+             这里用字面量 class 保证选中/未选中样式一定生效。 -->
+        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <Button Classes="chip"
+                  IsVisible="{Binding !IsAllFilterActive}"
+                  Command="{Binding SetFilterCommand}"
+                  CommandParameter="All"
+                  Content="{Binding FilterAllText}"/>
+          <Button Classes="chip active"
+                  IsVisible="{Binding IsAllFilterActive}"
+                  Command="{Binding SetFilterCommand}"
+                  CommandParameter="All"
+                  Content="{Binding FilterAllText}"/>
+          <Button Classes="chip"
+                  IsVisible="{Binding !IsRiskFilterActive}"
+                  Command="{Binding SetFilterCommand}"
+                  CommandParameter="Risk"
+                  Content="{Binding FilterRiskText}"/>
+          <Button Classes="chip warn active"
+                  IsVisible="{Binding IsRiskFilterActive}"
+                  Command="{Binding SetFilterCommand}"
+                  CommandParameter="Risk"
+                  Content="{Binding FilterRiskText}"/>
+          <!-- 紧凑档（<1024）按设计稿只保留前两个芯片 -->
+          <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ShowSecondaryFilters}">
+            <Button Classes="chip"
+                    IsVisible="{Binding !IsUpdateFilterActive}"
+                    Command="{Binding SetFilterCommand}"
+                    CommandParameter="Update"
+                    Content="{Binding FilterUpdateText}"/>
+            <Button Classes="chip active"
+                    IsVisible="{Binding IsUpdateFilterActive}"
+                    Command="{Binding SetFilterCommand}"
+                    CommandParameter="Update"
+                    Content="{Binding FilterUpdateText}"/>
+            <Button Classes="chip"
+                    IsVisible="{Binding !IsDisabledFilterActive}"
+                    Command="{Binding SetFilterCommand}"
+                    CommandParameter="Disabled"
+                    Content="{Binding FilterDisabledText}"/>
+            <Button Classes="chip active"
+                    IsVisible="{Binding IsDisabledFilterActive}"
+                    Command="{Binding SetFilterCommand}"
+                    CommandParameter="Disabled"
+                    Content="{Binding FilterDisabledText}"/>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+
+      <StackPanel Grid.Column="2"
+                  Orientation="Horizontal"
+                  Spacing="8"
+                  VerticalAlignment="Center"
+                  IsVisible="{Binding IsWideLayout}">
+        <ComboBox Width="148"
+                  VerticalAlignment="Center"
+                  ItemsSource="{Binding SortOptions}"
+                  SelectedIndex="{Binding SelectedSortIndex, Mode=TwoWay}"/>
+        <!-- 固定宽度容器：按钮与进度条切换时整体宽度不变，避免左侧排序下拉被推着走 -->
+        <Panel Width="96" VerticalAlignment="Center">
+          <Button Classes="secondary"
+                  Width="96"
+                  Content="{Binding CheckButtonText}"
+                  Command="{Binding CheckUpdatesCommand}"
+                  IsVisible="{Binding !IsChecking}"/>
+          <ProgressBar Width="96"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding IsChecking}"/>
+        </Panel>
+        <Button Classes="icon"
+                Command="{Binding RefreshCommand}"
+                ToolTip.Tip="{DynamicResource mods.refresh}">
+          <PathIcon Data="M17.65,6.35C16.2,4.9 14.21,4 12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8 7.99,8c3.73,0 6.84-2.55 7.73-6h-2.08c-0.82,2.33-3.04,4-5.65,4-3.31,0-6-2.69-6-6s2.69-6 6-6c1.66,0 3.14,0.69 4.22,1.78L13,11h7V4l-2.35,2.35z"/>
+        </Button>
+        <Button Classes="secondary"
+                Content="{DynamicResource mods.detail.title}"
+                Command="{Binding ToggleDetailDrawerCommand}"
+                IsVisible="{Binding !IsWideLayout}"/>
+      </StackPanel>
+      </Grid>
+
+      <!-- 窄布局第二行：排序 + 更新检查 + 刷新 + 详情，独占一行避免挤压搜索框与芯片 -->
+      <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !IsWideLayout}">
+        <ComboBox Width="148"
+                  VerticalAlignment="Center"
+                  ItemsSource="{Binding SortOptions}"
+                  SelectedIndex="{Binding SelectedSortIndex, Mode=TwoWay}"/>
+        <!-- 固定宽度容器：按钮与进度条切换时整体宽度不变，避免左侧排序下拉被推着走 -->
+        <Panel Width="96" VerticalAlignment="Center">
+          <Button Classes="secondary"
+                  Width="96"
+                  Content="{Binding CheckButtonText}"
+                  Command="{Binding CheckUpdatesCommand}"
+                  IsVisible="{Binding !IsChecking}"/>
+          <ProgressBar Width="96"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding IsChecking}"/>
+        </Panel>
+        <Button Classes="icon"
+                Command="{Binding RefreshCommand}"
+                ToolTip.Tip="{DynamicResource mods.refresh}">
+          <PathIcon Data="M17.65,6.35C16.2,4.9 14.21,4 12,4c-4.42,0-7.99,3.58-7.99,8s3.57,8 7.99,8c3.73,0 6.84-2.55 7.73-6h-2.08c-0.82,2.33-3.04,4-5.65,4-3.31,0-6-2.69-6-6s2.69-6 6-6c1.66,0 3.14,0.69 4.22,1.78L13,11h7V4l-2.35,2.35z"/>
+        </Button>
+        <Button Classes="secondary"
+                Content="{DynamicResource mods.detail.title}"
+                Command="{Binding ToggleDetailDrawerCommand}"/>
+      </StackPanel>
+    </StackPanel>
+
+    <!-- 琥珀提示条（例如加载顺序写回尚未支持） -->
+    <Border Grid.Row="1"
+            Background="{DynamicResource Brush.WarningBand}"
+            CornerRadius="10"
+            Padding="12,9"
+            Margin="0,0,0,12"
+            IsVisible="{Binding HasNotice}">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="{Binding NoticeText}"
+                   Classes="small"
+                   Foreground="{DynamicResource Brush.Warning}"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center"/>
+        <Button Grid.Column="1"
+                Classes="link"
+                Content="{DynamicResource mods.notice.dismiss}"
+                Command="{Binding DismissNoticeCommand}"
+                VerticalAlignment="Center"/>
+      </Grid>
+    </Border>
+
+    <!-- 错误提示 -->
+    <Border Grid.Row="2"
+            Background="{DynamicResource Brush.DangerSoft}"
+            BorderBrush="{DynamicResource Brush.DangerBorder}"
+            BorderThickness="1"
+            CornerRadius="10"
+            Padding="12,9"
+            Margin="0,0,0,12"
+            IsVisible="{Binding HasError}">
+      <TextBlock Text="{Binding ErrorText}"
+                 Classes="small"
+                 Foreground="{DynamicResource Brush.Danger}"
+                 TextWrapping="Wrap"/>
+    </Border>
+
+    <!-- 表格 + 详情面板 -->
+    <Grid Grid.Row="3">
+      <Grid ColumnDefinitions="*,Auto">
+        <Border Grid.Column="0" Classes="card" Padding="0" ClipToBounds="True">
+          <Grid RowDefinitions="Auto,Auto,*,Auto">
+            <!-- 表头 -->
+            <Grid Grid.Row="0" Height="40" Margin="0,0,0,0" ColumnDefinitions="54,*,68,112,64">
+              <TextBlock Grid.Column="0"
+                         Classes="faint"
+                         Margin="18,0,0,0"
+                         Text="{DynamicResource mods.table.order}"
+                         VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="1"
+                         Classes="faint"
+                         Text="{DynamicResource mods.table.mod}"
+                         VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="2"
+                         Classes="faint"
+                         Margin="0,0,18,0"
+                         TextAlignment="Right"
+                         Text="{DynamicResource mods.table.deps}"
+                         VerticalAlignment="Center"
+                         IsVisible="{Binding IsDependencyColumnVisible}"/>
+              <TextBlock Grid.Column="3"
+                         Classes="faint"
+                         TextAlignment="Left"
+                         Text="{DynamicResource mods.table.version}"
+                         VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="4"
+                         Classes="faint"
+                         TextAlignment="Center"
+                         Text="{DynamicResource mods.table.enabled}"
+                         VerticalAlignment="Center"/>
+            </Grid>
+
+            <Border Grid.Row="1" Height="1" Background="{DynamicResource Brush.Divider}"/>
+
+            <Grid Grid.Row="2">
+              <ListBox ItemsSource="{Binding Mods}"
+                       ItemTemplate="{StaticResource ModRowTemplate}"
+                       SelectedItem="{Binding SelectedMod, Mode=TwoWay}"
+                       Background="Transparent"
+                       BorderThickness="0"
+                       Padding="0,4"
+                       ScrollViewer.VerticalScrollBarVisibility="Auto"
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+
+              <StackPanel Spacing="6"
+                          Margin="24"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          IsVisible="{Binding IsEmpty}">
+                <TextBlock Text="{Binding EmptyTitle}"
+                           Classes="h3"
+                           TextAlignment="Center"/>
+                <TextBlock Text="{Binding EmptyHint}"
+                           Classes="muted"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="3" RowDefinitions="1,Auto">
+              <Border Grid.Row="0" Height="1" Background="{DynamicResource Brush.Divider}"/>
+              <TextBlock Grid.Row="1"
+                         Text="{Binding FooterText}"
+                         Classes="faint"
+                         Margin="18,11,18,12"/>
+            </Grid>
+          </Grid>
+        </Border>
+
+        <!-- 宽布局：固定 344 详情列 -->
+        <ContentControl Grid.Column="1"
+                        Width="344"
+                        Margin="14,0,0,0"
+                        Content="{Binding}"
+                        ContentTemplate="{StaticResource ModDetailPanel}"
+                        IsVisible="{Binding IsWideLayout}"/>
+      </Grid>
+
+      <!-- 窄布局：抽屉式详情，覆盖在表格上（同 Grid 中后声明的子元素自然绘制在上层，无需 ZIndex） -->
+      <ContentControl Width="344"
+                      HorizontalAlignment="Right"
+                      Content="{Binding}"
+                      ContentTemplate="{StaticResource ModDetailPanel}"
+                      IsVisible="{Binding IsDetailDrawerOpen}"/>
+    </Grid>
+  </Grid>
+</UserControl>

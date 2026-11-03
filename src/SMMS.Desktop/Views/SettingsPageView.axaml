@@ -1,0 +1,266 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMMS.Desktop.ViewModels"
+             xmlns:loc="using:SMMS.Desktop.Localization"
+             xmlns:core="using:SMMS.Core.Translation"
+             x:CompileBindings="False"
+             x:Class="SMMS.Desktop.Views.SettingsPageView">
+
+    <UserControl.Styles>
+            <!-- 分组小标题：白卡上方的浅灰小字 -->
+        <Style Selector="TextBlock.section">
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            <Setter Property="Margin" Value="0,0,0,7" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="24,20,24,24" ColumnDefinitions="*,260">
+            <StackPanel Grid.Column="0" Spacing="18">
+
+            <!-- 网络与代理 -->
+                <StackPanel>
+                    <TextBlock Classes="section" Text="{DynamicResource settings.groupNetworkProxy}" />
+                    <Border Classes="card" Padding="0">
+                        <StackPanel>
+                            <Grid ColumnDefinitions="*,Auto" Margin="20,16">
+                                <StackPanel Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Classes="h3" Text="{DynamicResource settings.nexusCheck}" />
+                                    <TextBlock Classes="muted" Text="{DynamicResource settings.nexusCheckHint}"
+                                               TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Classes="secondary" Height="32" Padding="14,0"
+                                        Content="{Binding ProbeButtonText}"
+                                        Command="{Binding ProbeNetworkCommand}"
+                                        IsEnabled="{Binding !IsProbing}"
+                                        VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Border IsVisible="{Binding ProbeSucceeded}"
+                                    Background="{DynamicResource Brush.SuccessSoft}"
+                                    CornerRadius="8" Padding="14,10" Margin="20,0,20,16">
+                                <TextBlock Text="{Binding ProbeDetail}" FontSize="11.5" LineHeight="19"
+                                           Foreground="{DynamicResource Brush.Success}" TextWrapping="Wrap" />
+                            </Border>
+
+                            <Border IsVisible="{Binding ProbeFailed}"
+                                    Background="{DynamicResource Brush.DangerSoft}"
+                                    CornerRadius="8" Padding="14,10" Margin="20,0,20,16">
+                                <TextBlock Text="{Binding ProbeDetail}" FontSize="11.5" LineHeight="19"
+                                           Foreground="{DynamicResource Brush.Danger}" TextWrapping="Wrap" />
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+            <!-- 翻译 -->
+                <StackPanel>
+                    <TextBlock Classes="section" Text="{DynamicResource settings.groupTranslation}" />
+                    <Border Classes="card" Padding="0">
+                        <StackPanel>
+                            <Grid ColumnDefinitions="*,Auto" Margin="20,16">
+                                <StackPanel Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Classes="h3" Text="{DynamicResource settings.translationTitle}" />
+                                    <TextBlock Classes="muted" Text="{DynamicResource settings.translationHint}"
+                                               TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Classes="secondary" Height="30" Padding="12,0"
+                                        Content="{DynamicResource settings.baiduApply}"
+                                        Command="{Binding OpenBaiduConsoleCommand}"
+                                        IsVisible="{Binding IsBaiduProvider}"
+                                        VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Border Height="1" Background="{DynamicResource Brush.Divider}" />
+
+                            <Grid ColumnDefinitions="*,Auto" Margin="20,14">
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Classes="h3" Text="{DynamicResource settings.translationProvider}" />
+                                </StackPanel>
+                                <ComboBox Grid.Column="1" Width="220" VerticalAlignment="Center"
+                                          ItemsSource="{Binding Providers}"
+                                          SelectedItem="{Binding SelectedProvider}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate DataType="core:ITranslationProvider">
+                                            <TextBlock Text="{Binding DisplayName}" FontSize="12.5" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+
+            <!-- 供应商凭证字段：一行一个字段 -->
+                            <ItemsControl ItemsSource="{Binding CredentialFields}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:CredentialFieldViewModel">
+                                        <Grid ColumnDefinitions="*,Auto" Margin="20,0,20,12">
+                                            <TextBlock Text="{Binding Label}" Classes="h3"
+                                                       VerticalAlignment="Center" />
+                                            <TextBox Grid.Column="1" Width="280" Height="32" FontSize="12"
+                                                     Text="{Binding Value}"
+                                                     PlaceholderText="{Binding Placeholder}"
+                                                     PasswordChar="{Binding PasswordChar}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Border IsVisible="{Binding NeedsForeignNetwork}"
+                                    Background="{DynamicResource Brush.WarningSoft}"
+                                    BorderBrush="{DynamicResource Brush.WarningBand}" BorderThickness="1"
+                                    CornerRadius="8" Padding="12,8" Margin="20,0,20,12">
+                                <TextBlock Text="{DynamicResource settings.foreignNetworkWarning}"
+                                           FontSize="11.5" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource Brush.Warning}" />
+                            </Border>
+
+                            <TextBlock Text="{DynamicResource settings.customHint}"
+                                       IsVisible="{Binding IsCustomProvider}"
+                                       Classes="muted" TextWrapping="Wrap"
+                                       Margin="20,0,20,12" />
+
+                            <Border Height="1" Background="{DynamicResource Brush.Divider}" />
+
+                            <StackPanel Orientation="Horizontal" Spacing="10" Margin="20,14">
+                                <Button Classes="secondary" Height="30" Padding="14,0"
+                                        Content="{DynamicResource settings.translationSave}"
+                                        Command="{Binding SaveTranslationCommand}" />
+                                <Button Classes="secondary" Height="30" Padding="14,0"
+                                        Content="{DynamicResource settings.translationTest}"
+                                        Command="{Binding TestTranslationCommand}"
+                                        IsEnabled="{Binding !IsTestingTranslation}" />
+                                <TextBlock Text="{Binding TranslationStatus}" FontSize="11.5"
+                                           VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520"
+                                           Foreground="{DynamicResource Brush.Success}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+            <!-- SMAPI 与游戏目录 -->
+                <StackPanel>
+                    <TextBlock Classes="section" Text="{DynamicResource settings.groupSmapiGame}" />
+                    <Border Classes="card" Padding="0">
+                        <StackPanel>
+                            <Grid ColumnDefinitions="*,Auto" Margin="20,16">
+                                <StackPanel Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Classes="h3" Text="{DynamicResource settings.gamePath}" />
+                                    <TextBlock Classes="muted" Text="{DynamicResource settings.gamePathHint}"
+                                               TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Classes="muted" Text="{Binding GamePathDisplay}"
+                                               MaxWidth="320" TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center" />
+                                    <Button Classes="secondary" Height="32" Padding="14,0"
+                                            Content="{DynamicResource settings.browse}"
+                                            Click="OnBrowseClick" />
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Height="1" Background="{DynamicResource Brush.Divider}" />
+
+                            <Grid ColumnDefinitions="*,Auto" Margin="20,14">
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Classes="h3" Text="{DynamicResource settings.gameVersion}" />
+                                    <TextBlock Classes="muted" Text="{DynamicResource settings.gameVersionHint}"
+                                               TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Classes="body" Text="{Binding GameVersionDisplay}"
+                                           VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Border Height="1" Background="{DynamicResource Brush.Divider}" />
+
+                            <Grid ColumnDefinitions="*,Auto" Margin="20,14">
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Classes="h3" Text="{DynamicResource settings.smapiVersion}" />
+                                    <TextBlock Classes="muted" Text="{Binding SmapiStatusText}"
+                                               TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Classes="body" Text="{Binding SmapiVersionDisplay}"
+                                               VerticalAlignment="Center" />
+                                    <Button Classes="secondary" Height="30" Padding="12,0"
+                                            Content="{Binding CheckSmapiButtonText}"
+                                            Command="{Binding CheckSmapiCommand}"
+                                            IsEnabled="{Binding !IsCheckingSmapi}" />
+                                    <Button Classes="secondary" Height="30" Padding="12,0"
+                                            Content="{DynamicResource settings.smapiDownload}"
+                                            Command="{Binding OpenSmapiDownloadCommand}"
+                                            IsVisible="{Binding HasSmapiUpdate}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Height="1" Background="{DynamicResource Brush.Divider}" />
+
+                            <Grid ColumnDefinitions="*,Auto" Margin="20,14">
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Classes="h3" Text="{DynamicResource settings.detectStatus}" />
+                                    <TextBlock Classes="muted" Text="{Binding StatusText}"
+                                               TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
+                                </StackPanel>
+                                <Button Grid.Column="1" Classes="secondary" Height="32" Padding="14,0"
+                                        Content="{DynamicResource settings.detect}"
+                                        Command="{Binding RefreshCommand}"
+                                        VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+            <!-- 语言 -->
+                <StackPanel>
+                    <TextBlock Classes="section" Text="{DynamicResource settings.groupLanguage}" />
+                    <Border Classes="card" Padding="0">
+                        <Grid ColumnDefinitions="*,Auto" Margin="20,16">
+                            <StackPanel Spacing="3" VerticalAlignment="Center">
+                                <TextBlock Classes="h3" Text="{DynamicResource settings.language}" />
+                                <TextBlock Classes="muted" Text="{DynamicResource settings.languageHint}"
+                                           TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
+                            </StackPanel>
+                            <ComboBox Grid.Column="1" Width="200" VerticalAlignment="Center"
+                                      ItemsSource="{Binding Languages}"
+                                      SelectedItem="{Binding SelectedLanguage}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate DataType="loc:LanguageOption">
+                                        <TextBlock Text="{Binding DisplayName}" FontSize="12.5" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+            <!-- 关于 -->
+                <StackPanel>
+                    <TextBlock Classes="section" Text="{DynamicResource settings.groupAbout}" />
+                    <Border Classes="card" Padding="0">
+                        <Grid ColumnDefinitions="Auto,*,Auto" Margin="20,16">
+                            <Border Width="42" Height="42" CornerRadius="11"
+                                    Background="{DynamicResource Brush.Primary}">
+                                <TextBlock Text="S" FontSize="19" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Brush.Card}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="14,0" VerticalAlignment="Center" Spacing="3">
+                                <TextBlock Classes="h3" Text="SMMS" />
+                                <TextBlock Classes="muted" Text="{DynamicResource settings.aboutTagline}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="3">
+                                <TextBlock Classes="muted" Text="{DynamicResource settings.aboutVersion}"
+                                           HorizontalAlignment="Right" />
+                                <TextBlock Classes="body" Text="{Binding AppVersion}"
+                                           HorizontalAlignment="Right" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

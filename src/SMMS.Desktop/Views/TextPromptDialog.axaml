@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMMS.Desktop.ViewModels"
+        x:Class="SMMS.Desktop.Views.TextPromptDialog"
+        x:DataType="vm:TextPromptViewModel"
+        Title="{Binding Title}"
+        Width="460" Height="250"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="#F7F7F4">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="24,20,24,18">
+        <TextBlock Grid.Row="0" Text="{Binding Title}" FontSize="15" FontWeight="SemiBold"
+                   Foreground="#1F2A24" />
+
+        <TextBlock Grid.Row="1" Text="{Binding Message}" FontSize="12" Foreground="#7A7A72"
+                   TextWrapping="Wrap" Margin="0,8,0,0" />
+
+        <TextBox Grid.Row="2" Text="{Binding Value}" Height="34" FontSize="12.5"
+                 VerticalContentAlignment="Center" Margin="0,12,0,0"
+                 VerticalAlignment="Top" Name="InputBox" />
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="{Binding CancelText}" Classes="secondary" Click="OnCancelClick"
+                    Height="34" Padding="18,0" CornerRadius="7" FontSize="12.5" />
+            <Button Content="{Binding ConfirmText}" Click="OnConfirmClick"
+                    Height="34" Padding="18,0" CornerRadius="7" FontSize="12.5"
+                    Background="#2F7D4F" Foreground="#FFFFFF" FontWeight="SemiBold"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+        </StackPanel>
+    </Grid>
+</Window>
